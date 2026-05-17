@@ -14,11 +14,22 @@ export default function LoginPage() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
+  const handleMicrosoftLogin = async () => {
+    setServerError(null);
+    const supabase = createClient();
+    
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'azure',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        scopes: 'openid profile email User.Read',
+      }
+    });
+
+    if (error) {
+      setServerError(error.message);
+    }
+  };
 
   const onSubmit = async (values: LoginFormValues) => {
     setServerError(null);
@@ -159,6 +170,31 @@ export default function LoginPage() {
           {isSubmitting ? 'Signing in…' : 'Sign In'}
         </button>
       </form>
+
+      <div className="relative flex py-2 items-center my-1">
+        <div className="flex-grow border-t" style={{ borderColor: 'var(--bg-border)' }}></div>
+        <span className="flex-shrink mx-4 text-xs" style={{ color: 'var(--text-muted)' }}>or</span>
+        <div className="flex-grow border-t" style={{ borderColor: 'var(--bg-border)' }}></div>
+      </div>
+
+      <button
+        onClick={handleMicrosoftLogin}
+        className="w-full flex items-center justify-center gap-2.5 py-2.5 rounded-lg text-sm font-semibold transition-all hover:opacity-90"
+        style={{
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid var(--bg-border)',
+          color: 'var(--text-primary)',
+          cursor: 'pointer'
+        }}
+      >
+        <svg className="w-4 h-4 shrink-0" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 0H11V11H0V0Z" fill="#F25022"/>
+          <path d="M12 0H23V11H12V0Z" fill="#7FBA00"/>
+          <path d="M0 12H11V23H0V12Z" fill="#00A4EF"/>
+          <path d="M12 12H23V23H12V12Z" fill="#FFB900"/>
+        </svg>
+        Sign in with Microsoft (SSO)
+      </button>
 
       <p className="text-center text-xs mt-6" style={{ color: 'var(--text-muted)' }}>
         Don&apos;t have an account?{' '}
