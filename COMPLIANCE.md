@@ -69,19 +69,22 @@ GoalOps Enterprise implements several **Good-to-Have** features described in **S
 Provide these credentials in your final submission. Evaluators can seamlessly log in to explore all three distinct roles:
 
 #### 👤 Employee Persona
-*   **Role:** Draft Goals, submit sheets, view pre-assigned KPI sheets, log achievements, check UoM mappings.
-*   **Email:** `employee@hpcl.com`
-*   **Password:** `password123`
+*   **Option 1 (Pre-loaded Direct direct reports):**
+    *   *Email:* `employee@hpcl.com`
+    *   *Password:* `password123`
+*   **Option 2 (Newly Registered Employee Sandbox):**
+    *   *Email:* `google@google.com`
+    *   *Password:* `password123` *(or the custom password you registered with)*
 
 #### 👥 Manager (L1) Persona
 *   **Role:** Manage direct report approvals, edit targets/weightages inline, log check-in feedback comments, push shared departmental KPIs.
-*   **Email:** `manager@hpcl.com`
-*   **Password:** `password123`
+*   **Email:* `manager@hpcl.com`
+*   **Password:* `password123`
 
 #### 👑 Admin / HR Persona
 *   **Role:** Manage cycle locks, override and reopen goal sheets, track SLA escalations, download live organization-wide CSV reports.
-*   **Email:** `admin@hpcl.com`
-*   **Password:** `password123`
+*   **Email:* `admin@hpcl.com`
+*   **Password:* `password123`
 
 ---
 
