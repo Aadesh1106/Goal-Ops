@@ -27,7 +27,15 @@ export default async function EmployeeCheckinsPage() {
     .eq('employee_id', user.id)
     .in('status', ['approved', 'locked']);
 
+  // Query total goal count to dynamically determine setup states
+  const { data: allGoals } = await supabase
+    .from('goals')
+    .select('status')
+    .eq('employee_id', user.id);
+
   const canAddCheckin = (activeGoals?.length ?? 0) > 0;
+  const hasGoals = (allGoals?.length ?? 0) > 0;
+  const isPendingApproval = hasGoals && !canAddCheckin;
 
   return (
     <div>
@@ -44,13 +52,43 @@ export default async function EmployeeCheckinsPage() {
         }
       />
 
-      {!canAddCheckin && (
-        <div className="mb-6 flex items-start gap-3 px-4 py-3 rounded-lg"
-          style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: '#fbbf24' }}>
-          <AlertTriangle size={16} className="mt-0.5 shrink-0" />
-          <div className="text-sm">
-            You don't have any approved goals yet. Only approved or locked goals can have check-ins.
+      {/* Dynamic State Helpers */}
+      {!hasGoals && (
+        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl border"
+          style={{ background: 'rgba(99,102,241,0.03)', borderColor: 'rgba(99,102,241,0.15)' }}>
+          <div className="flex items-start gap-3">
+            <ClipboardList size={20} className="shrink-0 mt-0.5" style={{ color: '#818cf8' }} />
+            <div>
+              <h4 className="font-bold text-white text-sm mb-0.5">Setup Your Performance Goals</h4>
+              <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                You haven't defined any performance goals for the current tracking cycle. To begin logging quarterly check-ins, please establish your goals first.
+              </p>
+            </div>
           </div>
+          <Link href="/dashboard/employee/goals/new"
+            className="btn-primary shrink-0 text-xs px-4 py-2 flex items-center gap-1.5 justify-center w-full sm:w-auto">
+            <Plus size={14} /> Define My Goals
+          </Link>
+        </div>
+      )}
+
+      {isPendingApproval && (
+        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl border animate-in fade-in duration-300"
+          style={{ background: 'rgba(245,158,11,0.03)', borderColor: 'rgba(245,158,11,0.15)' }}>
+          <div className="flex items-start gap-3">
+            <AlertTriangle size={20} className="shrink-0 mt-0.5 text-[#fbbf24]" />
+            <div>
+              <h4 className="font-bold text-white text-sm mb-0.5">Goals Pending Manager Approval</h4>
+              <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                Your submitted performance goals are currently pending review. Once your reporting manager approves your goals, you will be authorized to log quarterly progress updates!
+              </p>
+            </div>
+          </div>
+          <Link href="/dashboard/employee/goals"
+            className="shrink-0 text-xs px-4 py-2 rounded-lg font-semibold border text-center transition-all hover:bg-white/5 w-full sm:w-auto"
+            style={{ borderColor: 'var(--bg-border)', color: 'var(--text-primary)' }}>
+            Track Goal Status
+          </Link>
         </div>
       )}
 
