@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { ROLE_DASHBOARD_MAP } from '@/lib/constants';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function ResetPasswordPage() {
   const supabase = createClient();
@@ -13,6 +14,8 @@ export default function ResetPasswordPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,30 +112,50 @@ export default function ResetPasswordPage() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div>
             <label className="form-label" htmlFor="reset-password">New Password</label>
-            <input
-              id="reset-password"
-              type="password"
-              required
-              className="form-input"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isSubmitting}
-            />
+            <div className="relative">
+              <input
+                id="reset-password"
+                type={showPassword ? 'text' : 'password'}
+                required
+                className="form-input pr-10 w-full"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isSubmitting}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
 
           <div>
             <label className="form-label" htmlFor="reset-confirm">Confirm New Password</label>
-            <input
-              id="reset-confirm"
-              type="password"
-              required
-              className="form-input"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              disabled={isSubmitting}
-            />
+            <div className="relative">
+              <input
+                id="reset-confirm"
+                type={showConfirmPassword ? 'text' : 'password'}
+                required
+                className="form-input pr-10 w-full"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={isSubmitting}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
 
           {serverError && (

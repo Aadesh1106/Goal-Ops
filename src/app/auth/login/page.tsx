@@ -9,10 +9,12 @@ import { createClient } from '@/lib/supabase/client';
 import { loginSchema, type LoginFormValues } from '@/lib/validations';
 import { ROLE_DASHBOARD_MAP } from '@/lib/constants';
 import type { UserRole } from '@/types';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [showSsoModal, setShowSsoModal] = useState(false);
   const [showLiveSsoWarning, setShowLiveSsoWarning] = useState(false);
   const [isSsoLoggingIn, setIsSsoLoggingIn] = useState(false);
@@ -199,14 +201,24 @@ export default function LoginPage() {
               Forgot password?
             </Link>
           </div>
-          <input
-            id="login-password"
-            type="password"
-            className="form-input"
-            placeholder="••••••••"
-            autoComplete="current-password"
-            {...register('password')}
-          />
+          <div className="relative">
+            <input
+              id="login-password"
+              type={showPassword ? 'text' : 'password'}
+              className="form-input pr-10 w-full"
+              placeholder="••••••••"
+              autoComplete="current-password"
+              {...register('password')}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
           {errors.password && (
             <p className="mt-1.5 text-xs" style={{ color: 'var(--status-error)' }}>
               {errors.password.message}

@@ -8,10 +8,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { createClient } from '@/lib/supabase/client';
 import { registerSchema, type RegisterFormValues } from '@/lib/validations';
 import { DEPARTMENTS } from '@/lib/constants';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function RegisterPage() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -92,7 +94,23 @@ export default function RegisterPage() {
         {/* Password */}
         <div>
           <label className="form-label" htmlFor="reg-password">Password</label>
-          <input id="reg-password" type="password" className="form-input" placeholder="Min 8 characters" {...register('password')} />
+          <div className="relative">
+            <input
+              id="reg-password"
+              type={showPassword ? 'text' : 'password'}
+              className="form-input pr-10 w-full"
+              placeholder="Min 8 characters"
+              {...register('password')}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
           {errors.password && <p className="mt-1 text-xs" style={{ color: 'var(--status-error)' }}>{errors.password.message}</p>}
         </div>
 
