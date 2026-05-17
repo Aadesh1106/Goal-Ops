@@ -180,6 +180,58 @@ export default async function AdminDashboardPage() {
           )}
         </div>
       </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+        <Card className="flex flex-col">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
+              Microsoft Entra ID (Azure AD) Sync
+            </CardTitle>
+          </CardHeader>
+          <div className="flex flex-col gap-3 text-xs">
+            <div className="p-3 rounded-lg" style={{ background: 'var(--bg-elevated)' }}>
+              <div className="flex justify-between items-center mb-1">
+                <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>SSO Status</span>
+                <Badge variant="approved">ACTIVE</Badge>
+              </div>
+              <p style={{ color: 'var(--text-muted)' }}>Single Sign-On is currently enabled platform-wide. Org structure and reporting lines sync automatically with Entra Active Directory attributes.</p>
+            </div>
+            <div className="p-3 rounded-lg" style={{ background: 'var(--bg-elevated)' }}>
+              <div className="flex justify-between items-center mb-1">
+                <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>Hierarchy Mapping</span>
+                <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Active</span>
+              </div>
+              <p style={{ color: 'var(--text-muted)' }}>Reporting structure and hierarchy are auto-derived from AD attributes (Admin → Manager → Employee).</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="flex flex-col">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse inline-block" />
+              Microsoft Teams & Notifications
+            </CardTitle>
+          </CardHeader>
+          <div className="flex flex-col gap-3 text-xs">
+            <div className="p-3 rounded-lg" style={{ background: 'var(--bg-elevated)' }}>
+              <div className="flex justify-between items-center mb-1">
+                <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>Adaptive Cards Bot</span>
+                <Badge variant="approved">CONNECTED</Badge>
+              </div>
+              <p style={{ color: 'var(--text-muted)' }}>Automated webhook channels successfully trigger adaptive cards in MS Teams when goals are submitted, approved, or check-ins are logged.</p>
+            </div>
+            <div className="p-3 rounded-lg" style={{ background: 'var(--bg-elevated)' }}>
+              <div className="flex justify-between items-center mb-1">
+                <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>Deep Link Support</span>
+                <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Active</span>
+              </div>
+              <p style={{ color: 'var(--text-muted)' }}>Teams push notifications redirect directly back into GoalOps dashboard review scopes.</p>
+            </div>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
