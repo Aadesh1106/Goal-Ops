@@ -52,54 +52,29 @@ export default function LoginPage() {
   const handleSimulatedLogin = async (email: string) => {
     setIsSsoLoggingIn(true);
     setServerError(null);
-    const supabase = createClient();
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password: 'password123',
-    });
+    try {
+      const res = await fetch('/api/auth/sso-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      });
 
-    if (error) {
-      setServerError(`SSO claim simulation failed: ${error.message}`);
-      setIsSsoLoggingIn(false);
-      setShowSsoModal(false);
-      return;
-    }
-
-    // Fetch role and redirect
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      let { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      
-      // Auto-repair missing profile for bricked accounts
-      if (!profile) {
-        const fallbackRole = user.email?.includes('admin') ? 'admin' : (user.email?.includes('manager') ? 'manager' : 'employee');
-        const defaultName = user.user_metadata?.full_name || (user.email?.split('@')[0] || 'User');
-        const { data: newProfile, error: insertErr } = await supabase.from('profiles').insert({
-          id: user.id,
-          email: user.email,
-          full_name: defaultName,
-          role: fallbackRole,
-          department: 'General',
-          employee_code: 'EMP-REC-' + Date.now().toString().slice(-4),
-        }).select().single();
-        
-        if (insertErr) {
-          setServerError(`SSO profile claims repair failed: ${insertErr.message}`);
-          setIsSsoLoggingIn(false);
-          setShowSsoModal(false);
-          return;
-        }
-        profile = newProfile;
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to generate SSO claim');
       }
 
-      const role = (profile?.role ?? 'employee') as UserRole;
-      router.push(ROLE_DASHBOARD_MAP[role]);
-      router.refresh();
+      const { actionLink } = await res.json();
+      
+      // Redirect browser directly to the authenticated Supabase action link
+      window.location.href = actionLink;
+    } catch (err: any) {
+      setServerError(`SSO claim simulation failed: ${err.message}`);
+      setIsSsoLoggingIn(false);
+      setShowSsoModal(false);
     }
   };
 
