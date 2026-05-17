@@ -67,10 +67,11 @@ export default function LoginPage() {
         throw new Error(errData.error || 'Failed to generate SSO claim');
       }
 
-      const { actionLink } = await res.json();
+      const { role } = await res.json();
       
-      // Redirect browser directly to the authenticated Supabase action link
-      window.location.href = actionLink;
+      // Navigate to the correct role dashboard on the same host
+      router.push(`/dashboard/${role}`);
+      router.refresh();
     } catch (err: any) {
       setServerError(`SSO claim simulation failed: ${err.message}`);
       setIsSsoLoggingIn(false);

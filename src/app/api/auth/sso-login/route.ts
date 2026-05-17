@@ -1,3 +1,4 @@
+import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -14,7 +15,7 @@ export async function POST(request: Request) {
 
     console.log(`[SSO Claims Simulation] Generating magic link for email: ${email}`);
 
-    // Generate login link using admin API
+    // Generate login link and OTP using admin API
     const res = await fetch(`${supabaseUrl}/auth/v1/admin/generate_link`, {
       method: 'POST',
       headers: {
@@ -24,10 +25,7 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         type: 'magiclink',
-        email: email,
-        options: {
-          redirectTo: `${new URL(request.url).origin}/auth/callback`
-        }
+        email: email
       })
     });
 
@@ -38,15 +36,51 @@ export async function POST(request: Request) {
     }
 
     const data = await res.json();
-    const actionLink = data.properties?.action_link;
+    const emailOtp = data.email_otp;
 
-    if (!actionLink) {
-      console.error('[SSO Claims Simulation] Response missing action link:', data);
-      return NextResponse.json({ error: 'Response missing action link' }, { status: 500 });
+    if (!emailOtp) {
+      console.error('[SSO Claims Simulation] Response missing OTP:', data);
+      return NextResponse.json({ error: 'Response missing OTP' }, { status: 500 });
     }
 
-    console.log(`[SSO Claims Simulation] Link generated successfully!`);
-    return NextResponse.json({ success: true, actionLink });
+    console.log(`[SSO Claims Simulation] OTP generated. Exchanging on server side...`);
+
+    // Verify OTP on the server side using createClient to set auth cookies directly in browser response
+    const supabase = await createClient();
+    
+    let { error: verifyErr } = await supabase.auth.verifyOtp({
+      email,
+      token: emailOtp,
+      type: 'magiclink'
+    });
+
+    if (verifyErr) {
+      console.warn('[SSO Claims Simulation] verifyOtp with magiclink failed, trying email type...', verifyErr.message);
+      const retry = await supabase.auth.verifyOtp({
+        email,
+        token: emailOtp,
+        type: 'email'
+      });
+      verifyErr = retry.error;
+    }
+
+    if (verifyErr) {
+      console.error('[SSO Claims Simulation] Failed to exchange OTP:', verifyErr);
+      return NextResponse.json({ error: 'Failed to authenticate dynamic session', details: verifyErr.message }, { status: 401 });
+    }
+
+    console.log(`[SSO Claims Simulation] OTP exchange succeeded! Session cookies set in browser.`);
+    
+    // Fetch profile role to redirect the client side properly
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('email', email)
+      .single();
+
+    const role = profile?.role ?? 'employee';
+
+    return NextResponse.json({ success: true, role });
   } catch (error: any) {
     console.error('[SSO Claims Simulation] Unexpected error:', error);
     return NextResponse.json({ error: error.message || 'Server error' }, { status: 500 });
