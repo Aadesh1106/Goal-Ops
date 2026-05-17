@@ -1,4 +1,4 @@
-# AlignOps / GoalOps Enterprise - In-House Goal Setting & Tracking Portal
+# AlignOps / GoalOps Enterprise — In-House Goal Setting & Tracking Portal
 
 > **Optimizing Goal Alignment, Performance Intelligence, and HR Governance**
 > 
@@ -14,137 +14,110 @@
 
 ## Table of Contents
 
-| # | Section |
-|---|---------|
-| 1 | [Overview](#overview) |
-| 2 | [Problem Statement](#problem-statement) |
-| 3 | [Key Features](#key-features) |
-| 4 | [System Architecture](#system-architecture) |
-| 5 | [Technology Stack](#technology-stack) |
-| 6 | [Quick Start Guide](#quick-start-guide) |
-| 7 | [Project Structure](#project-structure) |
-| 8 | [Role Persona Authentication](#role-persona-authentication) |
-| 9 | [Reporting & Governance](#reporting--governance) |
-| 10 | [Performance & Cost Optimization](#performance--cost-optimization) |
-| 11 | [Development & Testing](#development--testing) |
-| 12 | [License & Acknowledgments](#license--acknowledgments) |
+| # | Section | Description |
+|---|---|---|
+| 1 | [Background & Problem Context](#1-background--problem-context) | Why GoalOps exists and what problems it solves |
+| 2 | [Problem Statement & Feature Fulfillment](#2-problem-statement--feature-fulfillment) | Deep dive into Phase 1, Phase 2, and Schedules |
+| 3 | [User Roles & Capabilities](#3-user-roles--capabilities) | Detailed access rights and persona details |
+| 4 | [System Architecture](#4-system-architecture) | Visual flow from user views to Postgres schema |
+| 5 | [Technology Stack](#5-technology-stack) | Tool choices, hosting, and performance metrics |
+| 6 | [Quick Start Guide](#6-quick-start-guide) | Installation, environment config, and startup |
+| 7 | [Good-to-Have Features (Bonus Points)](#7-good-to-have-features-bonus-points) | Advanced modules included in this build |
+| 8 | [Evaluator Persona Credentials](#8-evaluator-persona-credentials) | Easy-to-use logins for judges |
+| 9 | [Reporting & Governance](#9-reporting--governance) | Excel exports and cycle override controls |
+| 10 | [Performance & Cost Optimization](#10-performance--cost-optimization) | Production compilation and speed optimizations |
 
 ---
 
-## Overview
+## 1. Background & Problem Context
 
-**GoalOps Enterprise** is a high-fidelity digital Goal Governance & Performance Intelligence platform custom-built to eliminate the friction, security vulnerabilities, and blind spots of manual, spreadsheet-based goal tracking. The platform aligns organizational objectives, simplifies quarterly review cycles, protects operational data via granular Row Level Security (RLS), and provides human resource officers with an instant compliance cockpit.
+Organizations that rely on manual or fragmented goal-tracking methods often struggle with alignment, visibility, and accountability. Spreadsheets, emails, and offline review cycles create blind spots:
+* **Managers** cannot monitor team progress in real time or coordinate performance tasks.
+* **Employees** lack clarity on how their daily work connects to high-level organizational priorities.
+* **HR Teams** are left manually piecing together fragmented sheets at appraisal time, increasing administrative fatigue.
 
-### The Problem it Solves
-Traditional organizational planning methods suffer from three severe operational issues:
-- **Fragmentation:** Spreadsheets and email chains lose tracking data and lead to reporting gaps during annual appraisal reviews.
-- **Vague Alignment:** Direct reports lack real-time visibility into how their goals feed into organizational and departmental KPIs.
-- **Governance Gaps:** Manual updates allow post-appraisal target modifications without verification, ruining the audit trail.
-
-### The GoalOps Solution
-- **Speed:** Instant goal creation, submission, and manager approval cycles.
-- **Accuracy:** Enforced visual validation rules ensuring that weights, goal limits, and thrust areas conform to policies before locking.
-- **Security:** Immutable database ledger and Row Level Security blocking unauthorized modifications.
-- **Analytics:** Real-time completion rates, department performance trends, and dynamic progress trackers.
+**GoalOps Enterprise** solves these pain points by offering a structured, digital Goal Setting & Tracking Portal supporting the entire goal lifecycle—from dynamic creation and policy validation to quarterly check-ins and lock management—while remaining completely **intuitive, reliable, and audit-ready**.
 
 ---
 
-## Problem Statement
+## 2. Problem Statement & Feature Fulfillment
 
-### AtomQuest Hackathon 1.0: In-House Goal Setting & Tracking Portal
-
-#### Phase 1 — Goal Creation & Approval (Must-Have)
-- **Employee Goals Sheet:** Define goals under specific Thrust Areas (Operational Excellence, Revenue Growth, etc.) with custom Titles and Descriptions.
-- **Unit of Measurement (UoM):** Mapped dynamically to Numeric, Percentage (%), Timeline (Days), and Zero-based (0 = Success).
-- **Strict Business Validation Rules:**
+### 2.1 Phase 1 — Goal Creation & Approval
+- **Employee Goals Interface:** Intuitive goal sheets where employees select specific **Thrust Areas** (Operational Excellence, Revenue Growth, Innovation & Technology, Compliance & Risk) and define custom titles and descriptions.
+- **Unit of Measurement (UoM):** Supports Numeric, Percentage (%), Timeline (Days), and Zero-based.
+- **Enforced Policy Validation Rules:**
   - Total weightage across all goals must equal exactly **100%**.
   - Minimum individual goal weightage: **10%**.
-  - Maximum goals per employee: **8 goals**.
-- **L1 Manager Workflow:** Approve or return sheets for rework, with dynamic inline editing of weights and targets.
-- **Departmental Shared KPIs:** Push read-only global goals directly to the team (reports can edit weightage only).
+  - Maximum goals per employee: **8 goals** (the `+ Add Goal` option disables automatically at 8).
+- **L1 Manager Workflows:** Dashboard to review direct reports' goal sheets with full inline editing of weightages and targets, or return them for rework. Approved sheets are locked instantly.
+- **Shared Departmental KPIs:** Managers can push read-only departmental goals to direct reports. Recipients adjust weightage only (Title and Targets are disabled).
 
-#### Phase 2 — Achievement Tracking & Quarterly Check-ins (Must-Have)
-- **Quarterly Achievement Logging:** Update Actual vs. Planned Targets, marking status (Not Started / On Track / Completed).
-- **Manager Feedback Logs:** Record notes and discussion comments during reviews.
-- **Dynamic Score Computations:**
-  - *Min (Higher is better):* `Achievement / Target`
-  - *Max (Lower is better):* `Target / Achievement`
-  - *Zero-based:* `If Achievement == 0 -> 100%, else 0%`
+### 2.2 Phase 2 — Achievement Tracking & Quarterly Check-ins
+* **Quarterly Progress Updates:** Interface for employees to log Actual Achievement values against Planned Targets and select progress status (**Not Started**, **On Track**, **Completed**).
+* **Manager Check-ins:** Allows managers to review achievements side-by-side and enter structured comments.
+* **System-Computed Scores:** Progress scores are dynamically calculated using exact mathematical formulas based on UoM Type:
 
----
+| UoM Type | Description / Case | Mathematical Formula |
+| :--- | :--- | :--- |
+| **Min (Numeric / %)** | Higher is better (e.g., Sales Revenue) | `Achievement ÷ Target` |
+| **Max (Numeric / %)** | Lower is better (e.g., Cost, Turnaround Time) | `Target ÷ Achievement` |
+| **Timeline** | Date-based completion vs deadline | `Completion Date vs. Deadline` |
+| **Zero** | Zero represents perfect success (e.g., Safety incidents) | `If Achievement == 0 → 100%, else 0%` |
 
-## Key Features
+### 2.3 Check-in Schedule
 
-- **Dynamic Goal Validation Engine:** Enforces policy limits at both form entry and database submittal.
-- **Interactive Check-in Schedule:** Enforces quarterly capture windows (Goal Setting, Q1, Q2, Q3, Annual).
-- **Shared KPI Push Channel:** Pushes read-only global goals instantly to the sheets of all reports under the manager.
-- **Exception Lock Overrides:** HR and Admins can override cycle locks, return sheets to `draft`, and authorize off-cycle edits.
-- **Immutable Audit Trail:** Track target or weightage adjustments made after the lock date, capturing who, what, when, old, and new values.
-- **Rule-Based SLA Escalations:** Admin panel highlighting direct reports overdue on submittals or managers overdue on reviews.
-- **Live CSV Export Engine:** Download a formatted CSV summary sheet showing planned targets vs. achievements for all employees.
-
----
-
-## System Architecture
+GoalOps Enterprise enforces the active windows for achievement capture:
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                 Frontend View Layer (Next.js)               │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │   Employee   │  │  Manager L1  │  │  Admin / HR  │     │
-│  │  Dashboard   │  │  Dashboard   │  │   Cockpit    │     │
-│  └──────────────┘  └──────────────┘  └──────────────┘     │
-│                         ↕ Server Actions                    │
-└─────────────────────────────────────────────────────────────┘
-                          ↕
-┌─────────────────────────────────────────────────────────────┐
-│             Secure Data Actions (Next.js / Node)            │
-│  ┌────────────────────────────────────────────────────┐    │
-│  │             Business Logic & Math Layer            │    │
-│  │  • Target vs Achievement Score Math Formulas      │    │
-│  │  • Weightage Validation (Exactly 100%)             │    │
-│  │  • SLA Cycle Tracker & Escalation Processor        │    │
-│  └────────────────────────────────────────────────────┘    │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │     CSV      │  │  Audit Log   │  │  Escalation  │     │
-│  │    Stream    │  │   Recorder   │  │   Triggers   │     │
-│  └──────────────┘  └──────────────┘  └──────────────┘     │
-└─────────────────────────────────────────────────────────────┘
-                          ↕
-┌─────────────────────────────────────────────────────────────┐
-│                   Secure Database (Supabase)                │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │  Profiles    │  │  Goals /     │  │  Approvals / │     │
-│  │  (Postgres)  │  │  Shared      │  │  Check-ins   │     │
-│  └──────────────┘  └──────────────┘  └──────────────┘     │
-│         🔒 Enforced Row Level Security (RLS) policies       │
-└─────────────────────────────────────────────────────────────┘
+[Phase 1: Goal Setting] ──(May 1st)──> [Q1 Check-in] ──(July)──> [Q2 Check-in] ──(October)──> [Q3 Check-in] ──(January)──> [Q4/Annual Capture] ──(Mar/Apr)
 ```
 
 ---
 
-## Technology Stack
+## 3. User Roles & Capabilities
 
-| Technology | Version | Purpose |
-|---|---|---|
-| **Next.js** | 15+ | High-performance React framework (App Router) |
-| **Supabase** | Latest | Backend-as-a-service (Database + Auth) |
-| **PostgreSQL** | 15+ | Relational data layer with secure RLS policies |
-| **TypeScript** | 5.0+ | Strict type-safety across client and server |
-| **Tailwind CSS** | 3.4+ | Core layout styling and aesthetic variables |
-| **Lucide React** | Latest | Modern icon system |
-| **Recharts** | Latest | Responsive data charts for analytics |
+| Role | Core Responsibilities | Required System Capabilities |
+| :--- | :--- | :--- |
+| **Employee** | Draft goals; enter quarterly achievements; update progress status | Create & edit goals pre-submission; view locked goals; input actuals |
+| **Manager L1** | Review & approve direct reports' goals; conduct check-ins; log comments | Team dashboard; inline editing during approvals; feedback logs; push KPIs |
+| **Admin / HR** | Manage cycles; oversee completion metrics; lock bypass management | Exception handling; lock overrides; audit logs; CSV/Excel exports |
 
 ---
 
-## Quick Start Guide
+## 4. System Architecture
+
+```mermaid
+graph TD
+  User((User Session)) --> NextJS[Next.js App Router]
+  NextJS --> Actions[Secure Server Actions]
+  Actions --> Validation{Policy Checks:<br>Weightage & Count}
+  Validation -- Pass --> Postgres[(Supabase PostgreSQL Database)]
+  Validation -- Fail --> User
+  Postgres --> RLS{Postgres RLS Policies}
+  RLS --> |Auth Match| Profiles[profiles table]
+  RLS --> |Auth Match| Goals[goals table]
+  RLS --> |Auth Match| Checkins[quarterly_checkins table]
+  RLS --> |Audit Ledger| Audit[audit_logs table]
+```
+
+---
+
+## 5. Technology Stack
+
+* **Frontend:** Next.js 15+ (App Router), Tailwind CSS (Aesthetic tokens), Lucide React (Icons).
+* **Backend:** Next.js Server Actions (Secure database interaction).
+* **Database & Auth:** Supabase PostgreSQL with active **Row Level Security (RLS)**.
+* **Charts & Visuals:** Recharts dynamic completion rates and thrust area distribution metrics.
+
+---
+
+## 6. Quick Start Guide
 
 ### Prerequisites
-- **Node.js** 18.0 or higher
-- **npm** or **yarn** package manager
-- **Supabase CLI** (optional)
+* **Node.js** 18.0 or higher
+* **npm** or **yarn** package manager
 
-### Setup & Run
+### Installation
 
 1. **Clone the Repository:**
    ```bash
@@ -157,18 +130,17 @@ Traditional organizational planning methods suffer from three severe operational
    npm install
    ```
 
-3. **Configure Environment Variables:**
-   Create a `.env.local` file in the project root:
+3. **Configure Environment Variables (`.env.local`):**
    ```env
    NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
    SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
    ```
 
-4. **Initialize Database Schema:**
-   Apply the migrations provided in the `/supabase/schema.sql` file directly to your Supabase SQL editor to create all tables, helper functions, and Row Level Security (RLS) policies.
+4. **Initialize PostgreSQL Schema:**
+   Copy the contents of `/supabase/schema.sql` directly into your Supabase SQL editor and execute to initialize all tables, triggers, and RLS policies.
 
-5. **Start Local Server:**
+5. **Start Local Development Server:**
    ```bash
    npm run dev
    ```
@@ -176,78 +148,49 @@ Traditional organizational planning methods suffer from three severe operational
 
 ---
 
-## Project Structure
+## 7. Good-to-Have Features (Bonus Points)
 
-```
-goalops-enterprise/
-├── src/
-│   ├── app/                    # Next.js App Router Pages
-│   │   ├── api/                # Secure API route handlers
-│   │   │   ├── export/         # CSV Export Engine
-│   │   │   └── auth/           # SSO registration helpers
-│   │   ├── auth/               # Auth UI (Login, Register, Recovery)
-│   │   ├── dashboard/          # Role-based dashboards
-│   │   │   ├── employee/       # Employee Workspace
-│   │   │   ├── manager/        # L1 Manager Approval Center
-│   │   │   └── admin/          # Cycle Governance Controls & Logs
-│   │   └── layout.tsx          # Root Layout with custom Theme vars
-│   ├── components/             # Reusable UI Components
-│   │   ├── ui/                 # Core design system inputs
-│   │   └── layout/             # Sidebar and Page Header wrappers
-│   ├── lib/                    # Shared integrations
-│   │   └── supabase/           # Server/Client database connectors
-│   └── utils/                  # Core math formulas and formatters
-├── supabase/                   # Schema configuration
-│   └── schema.sql              # Database migrations and RLS
-├── COMPLIANCE.md               # Hackathon 1.0 audit log
-├── package.json                # Project dependencies
-└── README.md                   # This file
-```
+* **7.1 Cycle SLA Escalation Tracker:** Displays live SLA violation alerts on the HR console showing direct reports missing submittals or managers lagging behind on approvals.
+* **7.2 Dynamic Charts & Analytics:** Interactive completion heatmaps, thrust area goal breakdowns, and department performance meters.
+* **7.3 Immutable Audit Trail:** Records all post-lock adjustments to goals, capturing who, what, when, old, and new values inside the `audit_logs` table.
+* **7.4 Excel/CSV Achievement Report Export:** Streams an organization-wide spreadsheet of targets vs. actual achievement for HR audits instantly.
 
 ---
 
-## Role Persona Authentication
+## 8. Evaluator Persona Credentials
 
-For ease of evaluation, use these pre-loaded accounts to test all user journeys:
+Judges can explore the complete application flow using these pre-configured accounts:
 
-#### 👤 Employee Persona
-*   **Option 1 (Pre-loaded direct reports):**
-    *   *Email:* `employee@hpcl.com`
-    *   *Password:* `password123`
-*   **Option 2 (Newly Registered Employee Sandbox):**
-    *   *Email:* `google@google.com`
-    *   *Password:* `password123` *(or your custom password)*
+### 👤 Employee Persona
+* **Option 1 (Pre-loaded Direct direct reports):**
+  * *Email:* `employee@hpcl.com`
+  * *Password:* `password123`
+* **Option 2 (Newly Registered Employee Sandbox):**
+  * *Email:* `google@google.com`
+  * *Password:* `password123` *(or your custom password)*
 
-#### 👥 Manager (L1) Persona
-*   **Responsibilities:** Approve reports' goal sheets, log feed-back comments, push shared departmental KPIs.
-*   **Email:** `manager@hpcl.com`
-*   **Password:** `password123`
+### 👥 Manager (L1) Persona
+* **Responsibilities:** Manage approvals, modify direct reports' targets/weightages inline, enter comments, push shared departmental KPIs.
+* **Email:** `manager@hpcl.com`
+* **Password:* `password123`
 
-#### 👑 Admin / HR Persona
-*   **Responsibilities:** Lock bypass controls, cycle tracking, export CSV sheets, check SLA escalation alerts.
-*   **Email:** `admin@hpcl.com`
-*   **Password:** `password123`
-
----
-
-## Reporting & Governance
-
-- **Live Export (CSV/Excel):** Admin dashboard triggers the export engine to download real-time reports of all planned targets vs. actual progress.
-- **Governance Override Actions:** Allows HR admins to reopen approved goal sheets and unassign locked KPIs for operational flexibility.
-- **Immutable Log Ledger:** Track target or weightage adjustments made after the lock date, capturing who, what, when, old, and new values.
+### 👑 Admin / HR Persona
+* **Responsibilities:** Lock bypass override control, cycles view, CSV exports, SLA escalation panels.
+* **Email:** `admin@hpcl.com`
+* **Password:* `password123`
 
 ---
 
-## Performance & Cost Optimization
+## 9. Reporting & Governance
 
-- **Server Actions:** leverages secure Next.js Server Actions to minimize round-trip latencies.
-- **Database Indexing:** Optimizes PostgreSQL foreign keys and queries to stay within free-tier resource bounds.
-- **A11y Visuals:** Styled with curated deep-dark glassmorphism, dynamic weightage sliders, and clear feedback alerts.
+* **Direct CSV Streamer:** Generates a formatted report for all employees across the organization via `/api/export`.
+* **Lock Reopen Cockpit:** Admin panel allows HR to unlock and reopen any locked or approved goal sheets, returning them to `draft` state for authorized edits.
+* **Auditing:** Active triggers record every change in target values or weightages after cycles lock to prevent off-cycle tamper anomalies.
 
 ---
 
-## License & Acknowledgments
+## 10. Performance & Cost Optimization
 
-- **Atomberg Technologies** for the Hackathon 1.0 specification.
-- **Supabase** for providing instant, secure RLS backend tools.
-- **Next.js & React** communities for high-performance framework foundations.
+- **Next.js Server Actions:** Secure database operations directly from Node server side, completely eliminating client-side API latencies.
+- **Resource Constraints:** Designed to run 100% within Supabase's free tier bounds by optimizing SQL index lookups and cache policies.
+- **Aesthetic Premium System:** Full dark glassmorphism styling, clean animations, and responsive layouts designed to captivate reviewers at first glance.
