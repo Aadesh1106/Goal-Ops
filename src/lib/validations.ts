@@ -23,7 +23,7 @@ export const createGoalSchema = z.object({
   weightage: z
     .number({ error: 'Weightage must be a number' })
     .min(10, 'Minimum weightage is 10%')
-    .max(50, 'Maximum weightage is 50%'),
+    .max(100, 'Maximum weightage is 100%'),
 });
 
 export type CreateGoalFormValues = z.infer<typeof createGoalSchema>;

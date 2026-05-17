@@ -35,7 +35,7 @@ export function validateWeightage(
   const total = calculateTotalWeightage([...others, newWeight]);
 
   if (newWeight < 10) return { valid: false, message: 'Minimum weightage is 10%' };
-  if (newWeight > 50) return { valid: false, message: 'Maximum weightage is 50%' };
+  if (newWeight > 100) return { valid: false, message: 'Maximum weightage is 100%' };
   if (total > 100) return { valid: false, message: `Total weightage exceeds 100% (current: ${total}%)` };
   return { valid: true };
 }

@@ -161,7 +161,7 @@ export default async function ApprovalDetailPage({ params }: { params: Promise<{
                   </div>
                   <div>
                     <label className="text-[11px] font-medium block mb-1" style={{ color: 'var(--text-secondary)' }}>Weightage (%)</label>
-                    <input type="number" min={10} max={50} name="weightage" className="form-input text-xs py-1.5" defaultValue={goal?.weightage} />
+                    <input type="number" min={10} max={100} name="weightage" className="form-input text-xs py-1.5" defaultValue={goal?.weightage} />
                   </div>
                 </div>
               </div>

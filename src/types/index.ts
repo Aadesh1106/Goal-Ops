@@ -263,7 +263,7 @@ export const GOAL_CONSTRAINTS = {
   MAX_GOALS: 8,
   TOTAL_WEIGHTAGE: 100,
   MIN_WEIGHTAGE: 10,
-  MAX_WEIGHTAGE: 50,
+  MAX_WEIGHTAGE: 100,
 } as const;
 
 export const CURRENT_CYCLE_YEAR = new Date().getFullYear();

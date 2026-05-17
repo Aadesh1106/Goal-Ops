@@ -240,7 +240,7 @@ export default async function ManagerDashboardPage() {
 
               <div>
                 <label className="form-label text-xs">Contribution Weightage per Employee (%)</label>
-                <input name="weightage" type="number" min={10} max={50} className="form-input text-xs" defaultValue={15} required />
+                <input name="weightage" type="number" min={10} max={100} className="form-input text-xs" defaultValue={15} required />
               </div>
 
               <button type="submit" className="btn-primary flex items-center justify-center gap-2 py-2 text-xs font-semibold"

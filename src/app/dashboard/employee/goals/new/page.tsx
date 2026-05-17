@@ -62,7 +62,7 @@ export default function NewGoalPage() {
     <div>
       <PageHeader
         title="Add New Goal"
-        subtitle="Define a goal for this performance cycle. Weightage must be 10–50%."
+        subtitle="Define a goal for this performance cycle. Weightage must be 10–100%."
         action={
           <Link href="/dashboard/employee/goals"
             className="btn-secondary flex items-center gap-2 text-sm px-4 py-2">
@@ -126,9 +126,9 @@ export default function NewGoalPage() {
           <div>
             <label className="form-label" htmlFor="weightage">
               Weightage (%)
-              <span className="ml-2 font-normal" style={{ color: 'var(--text-muted)' }}>10 – 50%</span>
+              <span className="ml-2 font-normal" style={{ color: 'var(--text-muted)' }}>10 – 100%</span>
             </label>
-            <input id="weightage" type="number" min={10} max={50} className="form-input"
+            <input id="weightage" type="number" min={10} max={100} className="form-input"
               placeholder="e.g. 25" {...register('weightage', { valueAsNumber: true })} />
             {errors.weightage && <p className="mt-1 text-xs" style={{ color: 'var(--status-error)' }}>{errors.weightage.message}</p>}
           </div>

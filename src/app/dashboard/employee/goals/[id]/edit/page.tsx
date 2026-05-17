@@ -151,8 +151,8 @@ export default function EditGoalPage() {
           </div>
 
           <div>
-            <label className="form-label" htmlFor="edit-weight">Weightage (%) <span className="font-normal" style={{ color: 'var(--text-muted)' }}>10 – 50%</span></label>
-            <input id="edit-weight" type="number" min={10} max={50} className="form-input"
+            <label className="form-label" htmlFor="edit-weight">Weightage (%) <span className="font-normal" style={{ color: 'var(--text-muted)' }}>10 – 100%</span></label>
+            <input id="edit-weight" type="number" min={10} max={100} className="form-input"
               {...register('weightage', { valueAsNumber: true })} />
             {errors.weightage && <p className="mt-1 text-xs" style={{ color: 'var(--status-error)' }}>{errors.weightage.message}</p>}
           </div>

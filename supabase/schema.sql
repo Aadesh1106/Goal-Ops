@@ -92,7 +92,7 @@ CREATE TABLE goals (
   description      TEXT NOT NULL CHECK (char_length(description) BETWEEN 10 AND 500),
   uom_type         uom_type NOT NULL,
   target_value     NUMERIC(15,2) NOT NULL CHECK (target_value >= 0),
-  weightage        SMALLINT NOT NULL CHECK (weightage BETWEEN 10 AND 50),
+  weightage        SMALLINT NOT NULL CHECK (weightage BETWEEN 10 AND 100),
   status           goal_status NOT NULL DEFAULT 'draft',
   cycle_year       SMALLINT NOT NULL DEFAULT EXTRACT(YEAR FROM NOW()),
   manager_comment  TEXT,
