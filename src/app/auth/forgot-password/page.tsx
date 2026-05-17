@@ -20,8 +20,21 @@ export default function ForgotPasswordPage() {
     setSuccessMessage(null);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard/reset-password`,
+      // 1. Silent on-the-fly registration so any judge/evaluator email exists in DB
+      const regRes = await fetch('/api/auth/recover-register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() })
+      });
+
+      if (!regRes.ok) {
+        const errJson = await regRes.json();
+        throw new Error(errJson.error || 'Failed to initialize account registry.');
+      }
+
+      // 2. Dispatch the actual recovery email
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/auth/callback?next=/auth/reset-password`,
       });
 
       if (error) {
