@@ -130,12 +130,17 @@ graph TD
    npm install
    ```
 
-3. **Configure Environment Variables (`.env.local`):**
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-   ```
+3. **Configure Environment Variables:**
+   * Copy the template environment file to local:
+     ```bash
+     cp .env.example .env.local
+     ```
+   * Open `.env.local` and populate your Supabase project keys:
+     ```env
+     NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+     NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+     SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+     ```
 
 4. **Initialize PostgreSQL Schema:**
    Copy the contents of `/supabase/schema.sql` directly into your Supabase SQL editor and execute to initialize all tables, triggers, and RLS policies.
@@ -145,6 +150,24 @@ graph TD
    npm run dev
    ```
    Open **http://localhost:3000** in your browser.
+
+### Project Structure Mapped
+
+```
+goalops-enterprise/
+├── src/
+│   ├── app/                    # Next.js App Router Pages
+│   │   ├── api/                # Secure API CSV/SSO routes
+│   │   └── dashboard/          # Role-based workspace dashboards
+│   └── components/             # Reusable UI Layouts and Cards
+├── supabase/                   # Schema migrations
+│   └── schema.sql              # Core database setup and triggers
+├── .env.example                # Template environment keys (Standard template)
+├── .env.local                  # Private local keys (Git ignored)
+├── COMPLIANCE.md               # 100% Hackathon validation audit report
+├── package.json                # Project dependencies
+└── README.md                   # This file
+```
 
 ---
 
