@@ -174,3 +174,50 @@ graph LR
 2.  **Zoom In:** Zoom your browser window to **110% or 120%** so the text and numbers are highly legible on the judges' screens.
 3.  **No Dead Air:** Never stay silent while clicking buttons. Always narrate what you are doing (e.g. *"I am now clicking approve..."*).
 4.  **Stay Calm on Bugs:** If there is a network delay, stay calm and say: *"Our system runs secure database actions on the server, so it's completing the handshake now..."* to sound professional.
+
+---
+
+## 10. Phase 2 Demo Verification Mock Data Ledger
+
+Evaluators and judges love seeing **live, exact score calculations**. Use this pre-calculated dataset during your live demo to show the system's compliance with the BRD mathematical formulas:
+
+### 📈 Goal 1: Enhance Core API Throughput
+*   **Thrust Area:** Operational Excellence
+*   **UoM:** Percentage (%)
+*   **Planned Target:** `99.95`
+*   **Input Mock Achievement:** `99.95`
+*   **Status:** `Completed`
+*   **System-Computed Progress Score:** `100.00%`
+*   **Mathematical Formula (Min):** `Achievement / Target` $\to$ `99.95 / 99.95 = 100%`
+*   **Narrative to speak:** *"As we log the exact planned target of 99.95, our higher-is-better formula computes 100% success progress."*
+
+### ⏱️ Goal 2: Reduce Production Deployment Cycle Time
+*   **Thrust Area:** Cost Optimization
+*   **UoM:** Timeline (Days)
+*   **Planned Target:** `15`
+*   **Input Mock Achievement:** `12` *(Outstanding, completed in less time!)*
+*   **Status:** `Completed`
+*   **System-Computed Progress Score:** `125.00%` *(Over-achievement!)*
+*   **Mathematical Formula (Max / Lower is better):** `Target / Achievement` $\to$ `15 / 12 = 125%`
+*   **Narrative to speak:** *"Note the power of our lower-is-better Max math: because we completed the deployment automation in 12 days instead of the targeted 15, the system registers a 125% over-achievement score!"*
+
+### 🛡️ Goal 3: Maintain Zero Critical Security Vulnerabilities
+*   **Thrust Area:** Compliance & Risk
+*   **UoM:** Zero-based (0 = Success)
+*   **Planned Target:** `0`
+*   **Input Mock Achievement:** `0` *(Zero critical incidents detected)*
+*   **Status:** `Completed`
+*   **System-Computed Progress Score:** `100.00%`
+*   **Mathematical Formula (Zero-based):** `If Achievement == 0 -> 100%, else 0%`
+*   **Narrative to speak:** *"For our safety and risk parameters, zero is the target. Logging an achievement of 0 computes a perfect 100% success score. If we had logged 1 vulnerability, it would drop to 0% progress."*
+
+### 💡 Goal 4: Implement Architectural Design Reviews
+*   **Thrust Area:** Innovation & Technology
+*   **UoM:** Numeric
+*   **Planned Target:** `5`
+*   **Input Mock Achievement:** `4` *(Completed 4 reviews out of 5)*
+*   **Status:** `On Track`
+*   **System-Computed Progress Score:** `80.00%`
+*   **Mathematical Formula (Min):** `Achievement / Target` $\to$ `4 / 5 = 80%`
+*   **Narrative to speak:** *"For numeric reviews, completing 4 out of 5 reviews calculates an accurate progress score of 80% with a status of On Track."*
+
