@@ -1,5 +1,4 @@
-const supabaseUrl = 'https://ocgecepbyplfdhuocqow.supabase.co';
-const supabaseServiceKey = 'REMOVED_SECRET';
+const { supabaseUrl, supabaseServiceKey } = require('./loadEnv');
 
 async function run() {
   const googleId = 'ed5ead0b-0d8f-4443-82fb-e67871c7735b';

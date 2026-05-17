@@ -1,5 +1,4 @@
-const supabaseUrl = 'https://ocgecepbyplfdhuocqow.supabase.co';
-const supabaseServiceKey = 'REMOVED_SECRET';
+const { supabaseUrl, supabaseServiceKey } = require('./loadEnv');
 
 async function run() {
   const arjunId = '2ae34683-3bb6-4f89-9606-c891b453334a';

@@ -3,10 +3,13 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-const supabaseUrl = 'https://ocgecepbyplfdhuocqow.supabase.co';
-const supabaseServiceKey = 'REMOVED_SECRET';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 export async function POST(request: Request) {
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return NextResponse.json({ error: 'Supabase URL or Service Key is not configured' }, { status: 500 });
+  }
   try {
     const { email } = await request.json();
     if (!email) {

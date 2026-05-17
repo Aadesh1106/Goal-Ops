@@ -1,5 +1,4 @@
-const supabaseUrl = 'https://ocgecepbyplfdhuocqow.supabase.co';
-const supabaseServiceKey = 'REMOVED_SECRET';
+const { supabaseUrl, supabaseServiceKey } = require('./loadEnv');
 
 async function run() {
   const email = 'aadeshn45@gmail.com';

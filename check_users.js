@@ -1,5 +1,4 @@
-const supabaseUrl = 'https://ocgecepbyplfdhuocqow.supabase.co';
-const supabaseServiceKey = 'REMOVED_SECRET';
+const { supabaseUrl, supabaseServiceKey } = require('./loadEnv');
 
 async function run() {
   console.log('Fetching registered Auth users from Supabase Auth...');
