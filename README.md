@@ -211,19 +211,7 @@ Judges can explore the complete application flow using these pre-configured acco
     * **Total Weightage Used:** **0%**
     * **Remaining Weightage Space Left:** **100%** (perfect for judges to demo creating new goals from scratch!).
 
-* **Option 4 (Historical 115% Sheet - Action Required to Rectify):**
-  * **Email:** `employee@hpcl.com`
-  * **Password:** `password123`
-  * **Goal Weightage Setup (Current 115%):**
-    1. `[Shared] Zero Workplace Security Violations` (Locked Departmental KPI) — **15%** weightage
-    2. `[Shared] Q1 Infrastructure & Safety Compliance` — **15%** weightage
-    3. `Implement Architectural Design Reviews` — **20%** weightage
-    4. `Enhance Core API Throughput and Reliability` — **25%** weightage
-    5. `Maintain Zero Critical Security Vulnerabilities` — **20%** weightage
-    6. `Reduce Production Deployment Cycle Time` — **20%** weightage
-    * **Total Weightage Used:** **115%**
-    * **Remaining Weightage Space Left:** **-15%** (Exceeds limit!).
-    * *Demo Flow:* Click **Edit** on any of these goals (which will automatically revert them to `draft` status) and adjust their weightage to balance the sheet to exactly **100%** so you can submit them back to the manager!
+
 
 * **Option 5 (Newly Registered Employee Sandbox):**
   * **Email:** `google@google.com`
