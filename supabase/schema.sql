@@ -3,6 +3,25 @@
 -- Supabase / PostgreSQL 15+
 -- ============================================================
 
+-- ─── Cleanup ────────────────────────────────────────────────
+DROP TABLE IF EXISTS shared_goals CASCADE;
+DROP TABLE IF EXISTS audit_logs CASCADE;
+DROP TABLE IF EXISTS escalations CASCADE;
+DROP TABLE IF EXISTS approvals CASCADE;
+DROP TABLE IF EXISTS quarterly_checkins CASCADE;
+DROP TABLE IF EXISTS goals CASCADE;
+DROP TABLE IF EXISTS profiles CASCADE;
+
+DROP TYPE IF EXISTS audit_action CASCADE;
+DROP TYPE IF EXISTS checkin_status CASCADE;
+DROP TYPE IF EXISTS escalation_status CASCADE;
+DROP TYPE IF EXISTS escalation_level CASCADE;
+DROP TYPE IF EXISTS approval_status CASCADE;
+DROP TYPE IF EXISTS quarter_type CASCADE;
+DROP TYPE IF EXISTS uom_type CASCADE;
+DROP TYPE IF EXISTS goal_status CASCADE;
+DROP TYPE IF EXISTS user_role CASCADE;
+
 -- ─── Extensions ──────────────────────────────────────────────
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
