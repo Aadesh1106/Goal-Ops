@@ -13,6 +13,8 @@ import type { UserRole } from '@/types';
 export default function LoginPage() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [showSsoModal, setShowSsoModal] = useState(false);
+  const [isSsoLoggingIn, setIsSsoLoggingIn] = useState(false);
 
   const {
     register,
@@ -20,7 +22,66 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
 
-  const handleMicrosoftLogin = async () => {
+  const handleMicrosoftLogin = () => {
+    setServerError(null);
+    setShowSsoModal(true);
+  };
+
+  const handleSimulatedLogin = async (email: string) => {
+    setIsSsoLoggingIn(true);
+    setServerError(null);
+    const supabase = createClient();
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password: 'password123',
+    });
+
+    if (error) {
+      setServerError(`SSO claim simulation failed: ${error.message}`);
+      setIsSsoLoggingIn(false);
+      setShowSsoModal(false);
+      return;
+    }
+
+    // Fetch role and redirect
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      let { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      // Auto-repair missing profile for bricked accounts
+      if (!profile) {
+        const fallbackRole = user.email?.includes('admin') ? 'admin' : (user.email?.includes('manager') ? 'manager' : 'employee');
+        const defaultName = user.user_metadata?.full_name || (user.email?.split('@')[0] || 'User');
+        const { data: newProfile, error: insertErr } = await supabase.from('profiles').insert({
+          id: user.id,
+          email: user.email,
+          full_name: defaultName,
+          role: fallbackRole,
+          department: 'General',
+          employee_code: 'EMP-REC-' + Date.now().toString().slice(-4),
+        }).select().single();
+        
+        if (insertErr) {
+          setServerError(`SSO profile claims repair failed: ${insertErr.message}`);
+          setIsSsoLoggingIn(false);
+          setShowSsoModal(false);
+          return;
+        }
+        profile = newProfile;
+      }
+
+      const role = (profile?.role ?? 'employee') as UserRole;
+      router.push(ROLE_DASHBOARD_MAP[role]);
+      router.refresh();
+    }
+  };
+
+  const triggerLiveOAuthMicrosoft = async () => {
     setServerError(null);
     const supabase = createClient();
     
@@ -34,6 +95,7 @@ export default function LoginPage() {
 
     if (error) {
       setServerError(error.message);
+      setShowSsoModal(false);
     }
   };
 
@@ -87,7 +149,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="card" style={{ padding: '2.5rem' }}>
+    <div className="card" style={{ padding: '2.5rem', relative: 'true' }}>
       {/* Logo */}
       <div className="flex items-center gap-2 mb-8">
         <div
@@ -208,6 +270,86 @@ export default function LoginPage() {
           Register here
         </Link>
       </p>
+
+      {/* SSO Simulation Modal Dialog */}
+      {showSsoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}>
+          <div className="w-full max-w-md rounded-2xl p-6 border" style={{ background: '#12131a', borderColor: 'var(--bg-border)' }}>
+            
+            {/* Modal Header */}
+            <div className="flex items-center gap-3 mb-4">
+              <svg className="w-6 h-6 shrink-0" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 0H11V11H0V0Z" fill="#F25022"/>
+                <path d="M12 0H23V11H12V0Z" fill="#7FBA00"/>
+                <path d="M0 12H11V23H0V12Z" fill="#00A4EF"/>
+                <path d="M12 12H23V23H12V12Z" fill="#FFB900"/>
+              </svg>
+              <h2 className="font-bold text-base text-white">Microsoft Entra ID (SSO) Simulator</h2>
+            </div>
+            
+            <p className="text-xs mb-5" style={{ color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+              Since live Microsoft AD synchronization requires toggling the "Azure" provider inside your private Supabase dashboard, you can trigger a <strong>Simulated SSO Identity Claim</strong> below for testing!
+            </p>
+            
+            {/* Persona Grid */}
+            <div className="flex flex-col gap-2.5 mb-6">
+              <span className="text-[10px] uppercase font-bold tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                Select simulated enterprise identity:
+              </span>
+              
+              {[
+                { name: 'Arjun Engineer (Employee)', email: 'arjun@hpcl.com', desc: 'HPCL Technical Stream' },
+                { name: 'Sarah Manager (L1 Manager)', email: 'manager@hpcl.com', desc: 'Approvals & Team Check-ins' },
+                { name: 'System Admin (HR / Exception)', email: 'admin@goalops.com', desc: 'Audit Logs & Escalation Center' }
+              ].map((persona) => (
+                <button
+                  key={persona.email}
+                  disabled={isSsoLoggingIn}
+                  onClick={() => handleSimulatedLogin(persona.email)}
+                  className="w-full flex flex-col items-start p-3 rounded-xl border text-left transition-all hover:bg-white/5 active:scale-[0.98] disabled:opacity-50"
+                  style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--bg-border)', cursor: 'pointer' }}
+                >
+                  <span className="text-xs font-semibold text-white">{persona.name}</span>
+                  <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{persona.email} · {persona.desc}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Separator */}
+            <div className="relative flex py-2 items-center mb-4">
+              <div className="flex-grow border-t" style={{ borderColor: 'var(--bg-border)' }}></div>
+              <span className="flex-shrink mx-3 text-[10px]" style={{ color: 'var(--text-muted)' }}>or</span>
+              <div className="flex-grow border-t" style={{ borderColor: 'var(--bg-border)' }}></div>
+            </div>
+
+            {/* Live OAuth Trigger */}
+            <button
+              onClick={triggerLiveOAuthMicrosoft}
+              disabled={isSsoLoggingIn}
+              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold border transition-all hover:bg-white/5 disabled:opacity-50"
+              style={{ borderColor: '#f87171', color: '#f87171', cursor: 'pointer' }}
+            >
+              Continue to Live production AD Sign-In
+            </button>
+            <p className="text-[9px] text-center mt-1.5" style={{ color: 'var(--text-muted)' }}>
+              ⚠️ Requires live Azure keys set up inside Supabase Auth Providers console.
+            </p>
+
+            <div className="flex justify-end mt-5 pt-3 border-t" style={{ borderColor: 'var(--bg-border)' }}>
+              <button
+                disabled={isSsoLoggingIn}
+                onClick={() => setShowSsoModal(false)}
+                className="px-4 py-1.5 rounded-lg text-xs font-semibold"
+                style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-primary)', cursor: 'pointer' }}
+              >
+                Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
