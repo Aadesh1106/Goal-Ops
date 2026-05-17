@@ -69,12 +69,17 @@ GoalOps Enterprise implements several **Good-to-Have** features described in **S
 Provide these credentials in your final submission. Evaluators can seamlessly log in to explore all three distinct roles:
 
 #### 👤 Employee Persona
-*   **Option 1 (Pre-loaded Direct direct reports):**
-    *   *Email:* `employee@hpcl.com`
-    *   *Password:* `password123`
-*   **Option 2 (Newly Registered Employee Sandbox):**
-    *   *Email:* `google@google.com`
-    *   *Password:* `password123` *(or the custom password you registered with)*
+*   **Option 1 (Perfect 100% Compliant Sheet Sandbox):**
+    *   **Email:** `arun@hpcl.com`
+    *   **Password:** `password123`
+    *   **Goal Weightage Setup (Strictly 100%):** Includes a shared departmental KPI `[Shared] Zero Workplace Security Violations` (15%), plus standard engineering targets. Total sheet weightage is strictly **100%** (fully compliant, locked and approved).
+*   **Option 2 (Historical 115% Sheet - Action Required to Rectify):**
+    *   **Email:** `employee@hpcl.com`
+    *   **Password:** `password123`
+    *   **Goal Weightage Setup (Current 115%):** Total sheet weightage is **115%** (exceeds limit!). Demonstrates the active dynamic warning dashboard. Evaluators can click **Edit** on any of these goals to revert them to `draft` status and adjust weightages to exactly **100%** to submit back to the manager!
+*   **Option 3 (Newly Registered Employee Sandbox):**
+    *   **Email:** `google@google.com`
+    *   **Password:** `password123` *(or the custom password you registered with)*
 
 #### 👥 Manager (L1) Persona
 *   **Role:** Manage direct report approvals, edit targets/weightages inline, log check-in feedback comments, push shared departmental KPIs.
