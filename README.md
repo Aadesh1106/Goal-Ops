@@ -182,40 +182,20 @@ goalops-enterprise/
 
 ## 8. Evaluator Persona Credentials
 
-Judges can explore the complete application flow using these pre-configured accounts:
+Judges can explore the complete application flow using these pre-configured or dynamically created accounts.
 
-### 👤 Employee Persona
-* **Option 1 (Perfect 100% Compliant Sheet Sandbox):**
-  * **Email:** `arun@hpcl.com`
-  * **Password:** `password123`
-  * **Goal Weightage Setup:**
-    1. `[Shared] Zero Workplace Security Violations` (Locked Departmental KPI) — **15%** weightage
-    2. `Enhance Core API Throughput and Reliability` — **30%** weightage
-    3. `Reduce Production Deployment Cycle Time` — **25%** weightage
-    4. `Maintain Zero Critical Security Vulnerabilities` — **20%** weightage
-    5. `Implement Architectural Design Reviews` — **10%** weightage
-    * **Total Weightage Used:** **100%**
-    * **Remaining Weightage Space Left:** **0%** (fully compliant, locked and approved).
+> 💡 **SSO Simulator Bypass**: You can log into ANY of the registered profiles below **instantly with one click** using the **Microsoft Entra ID (SSO) Simulator** on the login page. This bypasses password checks and sets the authenticated session directly in your browser!
 
-* **Option 2 (Empty Sheet Sandbox - 100% Space Available):**
-  * **Email:** `varun@hpcl.com`
-  * **Password:** `password123`
-  * **Goal Weightage Setup:** No active goals configured.
-    * **Total Weightage Used:** **0%**
-    * **Remaining Weightage Space Left:** **100%** (perfect for judges to demo creating new goals from scratch!).
+### 👤 Employee Personas
 
-* **Option 3 (Empty Sheet Sandbox - 100% Space Available):**
-  * **Email:** `aravind@hpcl.com`
-  * **Password:** `password123`
-  * **Goal Weightage Setup:** No active goals configured.
-    * **Total Weightage Used:** **0%**
-    * **Remaining Weightage Space Left:** **100%** (perfect for judges to demo creating new goals from scratch!).
-
-
-
-* **Option 4 (Newly Registered Employee Sandbox):**
-  * **Email:** `google@google.com`
-  * **Password:** `password123` *(or your custom password)*
+| Employee Name | Work Email | Default Password | Goals Configured | Weightage Used | Weightage Space Left | Persona / Demo Purpose |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Arun** | `arun@hpcl.com` | `password123` | 5 Goals | **100%** | **0%** | **Compliant Sheet**: Locked and approved. Ideal for testing quarterly progress tracking, check-ins, or HR reopening control. |
+| **google** | `google@google.com` | `password123` | 4 Goals | **100%** | **0%** | **Compliant Sheet**: Fully configured and approved. |
+| **Roshan** | `rosejacktitanic648@gmail.com` | `password123` | 1 Goal | **40%** | **60%** | **Draft Sheet**: Edit goal weights, add new goals, and submit to manager. |
+| **Varun** | `varun@hpcl.com` | `password123` | 1 Goal | **12%** | **88%** | **Draft Sheet**: Edit goal weights, add new goals, and submit to manager. |
+| **Aravind** | `aravind@hpcl.com` | `password123` | 0 Goals | **0%** | **100%** | **Empty Sheet**: Great for showing the complete end-to-end goal creation wizard from scratch. |
+| **Anto** | `rosejacktitanic2001@gmail.com` | `password123` | 0 Goals | **0%** | **100%** | **Empty Sheet**: Sandbox for complete end-to-end creation. |
 
 ### 👥 Manager (L1) Persona
 * **Responsibilities:** Manage approvals, modify direct reports' targets/weightages inline, enter comments, push shared departmental KPIs.
