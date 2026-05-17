@@ -14,6 +14,12 @@ export default function LoginPage() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
+
   const handleMicrosoftLogin = async () => {
     setServerError(null);
     const supabase = createClient();
