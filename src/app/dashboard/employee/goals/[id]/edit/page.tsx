@@ -77,6 +77,7 @@ export default function EditGoalPage() {
           uom_type: values.uom_type,
           target_value: values.target_value,
           weightage: values.weightage,
+          status: 'draft', // Revert to draft status for resubmission and approval
         };
 
     const { error } = await supabase.from('goals').update(updatePayload).eq('id', goalId);

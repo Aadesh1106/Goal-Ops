@@ -113,7 +113,7 @@ export default async function EmployeeGoalsPage() {
 
                 {/* Actions */}
                 <div className="flex flex-col gap-2 shrink-0">
-                  {(goal.status === 'draft' || goal.status === 'rejected' || goal.title.startsWith('[Shared]')) && (
+                  {(goal.status !== 'locked' || goal.title.startsWith('[Shared]')) && (
                     <Link href={`/dashboard/employee/goals/${goal.id}/edit`}
                       className="btn-secondary flex items-center gap-1.5 text-xs px-3 py-1.5">
                       <Edit2 size={12} /> Edit
