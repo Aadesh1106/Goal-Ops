@@ -149,7 +149,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="card" style={{ padding: '2.5rem', relative: 'true' }}>
+    <div className="card" style={{ padding: '2.5rem', position: 'relative' }}>
       {/* Logo */}
       <div className="flex items-center gap-2 mb-8">
         <div
