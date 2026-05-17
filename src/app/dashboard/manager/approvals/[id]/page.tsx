@@ -15,14 +15,18 @@ async function approveGoal(formData: FormData) {
   const approvalId = formData.get('approvalId') as string;
   const goalId = formData.get('goalId') as string;
   const comment = formData.get('comment') as string;
+  const targetValue = formData.get('targetValue') ? Number(formData.get('targetValue')) : undefined;
+  const weightage = formData.get('weightage') ? Number(formData.get('weightage')) : undefined;
 
   await supabase.from('approvals').update({
     status: 'approved', comment, acted_at: new Date().toISOString()
   }).eq('id', approvalId);
 
-  await supabase.from('goals').update({
-    status: 'approved', manager_comment: comment || null
-  }).eq('id', goalId);
+  const updateData: any = { status: 'approved', manager_comment: comment || null };
+  if (targetValue !== undefined && !isNaN(targetValue)) updateData.target_value = targetValue;
+  if (weightage !== undefined && !isNaN(weightage)) updateData.weightage = weightage;
+
+  await supabase.from('goals').update(updateData).eq('id', goalId);
 
   revalidatePath('/dashboard/manager/approvals');
   redirect('/dashboard/manager/approvals');
@@ -136,25 +140,49 @@ export default async function ApprovalDetailPage({ params }: { params: Promise<{
           </Card>
         ) : (
           <Card className="p-4">
-            <p className="text-sm font-medium mb-3" style={{ color: 'var(--text-primary)' }}>
-              Manager Feedback <span style={{ color: 'var(--text-muted)' }}>(optional)</span>
+            <p className="text-sm font-semibold mb-3" style={{ color: 'var(--brand-accent)' }}>
+              Goal Review Actions
             </p>
 
             {/* Approve form */}
-            <form action={approveGoal} className="flex flex-col gap-3 mb-3">
+            <form action={approveGoal} className="flex flex-col gap-4 mb-4">
               <input type="hidden" name="approvalId" value={approval.id} />
               <input type="hidden" name="goalId" value={goal?.id} />
-              <textarea
-                name="comment"
-                className="form-input"
-                rows={3}
-                placeholder="Add feedback for the employee (optional)…"
-              />
+
+              {/* Inline Edits */}
+              <div className="p-3 rounded-lg border flex flex-col gap-3" style={{ background: 'var(--bg-elevated)', borderColor: 'rgba(255,255,255,0.06)' }}>
+                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                  Inline Adjustments (Optional)
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] font-medium block mb-1" style={{ color: 'var(--text-secondary)' }}>Target Value</label>
+                    <input type="number" step="0.01" name="targetValue" className="form-input text-xs py-1.5" defaultValue={goal?.target_value} />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-medium block mb-1" style={{ color: 'var(--text-secondary)' }}>Weightage (%)</label>
+                    <input type="number" min={10} max={50} name="weightage" className="form-input text-xs py-1.5" defaultValue={goal?.weightage} />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium block mb-1" style={{ color: 'var(--text-secondary)' }}>
+                  Manager Feedback / Comments <span style={{ color: 'var(--text-muted)' }}>(optional)</span>
+                </label>
+                <textarea
+                  name="comment"
+                  className="form-input"
+                  rows={3}
+                  placeholder="Add feedback for the employee (optional)…"
+                />
+              </div>
+
               <div className="flex gap-3">
                 <button type="submit"
-                  className="btn-primary flex items-center gap-2 px-5 py-2.5 flex-1 justify-center"
+                  className="btn-primary flex items-center gap-2 px-5 py-2.5 flex-1 justify-center font-semibold"
                   style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                  <CheckCircle size={15} /> Approve Goal
+                  <CheckCircle size={15} /> Approve & Update Goal
                 </button>
               </div>
             </form>

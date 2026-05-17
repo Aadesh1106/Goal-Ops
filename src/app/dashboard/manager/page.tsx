@@ -1,12 +1,73 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { PageHeader, KpiCard } from '@/components/layout/DashboardShell';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { CheckSquare, Clock, Users, TrendingUp } from 'lucide-react';
+import { CheckSquare, Clock, Users, TrendingUp, Share2, Award } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata = { title: 'Manager Dashboard | GoalOps Enterprise' };
+
+async function pushSharedGoal(formData: FormData) {
+  'use server';
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const thrustArea = formData.get('thrustArea') as string;
+  const title = formData.get('title') as string;
+  const description = formData.get('description') as string;
+  const uomType = formData.get('uomType') as string;
+  const targetValue = Number(formData.get('targetValue'));
+  const weightage = Number(formData.get('weightage'));
+
+  // 1. Create a "primary" goal owned by the manager
+  const { data: primaryGoal, error: goalError } = await supabase.from('goals').insert({
+    employee_id: user.id,
+    thrust_area: thrustArea,
+    title: `[Manager KPI] ${title}`,
+    description,
+    uom_type: uomType,
+    target_value: targetValue,
+    weightage,
+    status: 'locked'
+  }).select('id').single();
+
+  if (goalError || !primaryGoal) {
+    console.error('Goal Creation Error:', goalError);
+    return;
+  }
+
+  // 2. Fetch all team members
+  const { data: team } = await supabase.from('profiles').select('id').eq('manager_id', user.id);
+  if (!team || team.length === 0) return;
+
+  // 3. Link this goal to all team members
+  for (const member of team) {
+    const { data: empGoal } = await supabase.from('goals').insert({
+      employee_id: member.id,
+      thrust_area: thrustArea,
+      title: `[Shared] ${title}`,
+      description: `Departmental KPI: ${description}`,
+      uom_type: uomType,
+      target_value: targetValue,
+      weightage,
+      status: 'locked'
+    }).select('id').single();
+
+    if (empGoal) {
+      await supabase.from('shared_goals').insert({
+        primary_goal_id: primaryGoal.id,
+        shared_with_employee_id: member.id,
+        contribution_weightage: weightage,
+        status: 'active'
+      });
+    }
+  }
+
+  revalidatePath('/dashboard/manager');
+}
 
 export default async function ManagerDashboardPage() {
   const supabase = await createClient();
@@ -114,6 +175,69 @@ export default async function ManagerDashboardPage() {
           )}
         </Card>
       </div>
+
+      <Card className="flex flex-col mt-6 max-w-2xl">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Share2 size={16} className="text-indigo-400" />
+            Push Departmental KPI (Shared Goals)
+          </CardTitle>
+        </CardHeader>
+        <div className="flex flex-col gap-4">
+          <p className="text-xs text-secondary-muted" style={{ color: 'var(--text-muted)' }}>
+            Establish a unified departmental KPI and push it to all employees in your team instantly. Employees will receive the goal as pre-approved and locked, with title and targets locked to read-only.
+          </p>
+
+          <form action={pushSharedGoal} className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="form-label text-xs">Thrust Area</label>
+                <select name="thrustArea" className="form-input text-xs py-2" required>
+                  <option value="Operational Excellence">Operational Excellence</option>
+                  <option value="Revenue Growth">Revenue Growth</option>
+                  <option value="Innovation & Technology">Innovation & Technology</option>
+                  <option value="Compliance & Risk">Compliance & Risk</option>
+                </select>
+              </div>
+              <div>
+                <label className="form-label text-xs">Unit of Measurement (UoM)</label>
+                <select name="uomType" className="form-input text-xs py-2" required>
+                  <option value="percentage">Percentage (%)</option>
+                  <option value="number">Numeric</option>
+                  <option value="currency">Timeline (Days)</option>
+                  <option value="boolean">Zero-based (0 = Success)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="form-label text-xs">Goal Title</label>
+                <input name="title" type="text" className="form-input text-xs" placeholder="e.g. Complete quarterly safety audits" required />
+              </div>
+              <div>
+                <label className="form-label text-xs">Target Value</label>
+                <input name="targetValue" type="number" step="0.01" className="form-input text-xs" placeholder="e.g. 100" required />
+              </div>
+            </div>
+
+            <div>
+              <label className="form-label text-xs">Description</label>
+              <textarea name="description" className="form-input text-xs" rows={2} placeholder="Explain the expected outcomes and operational significance..." required />
+            </div>
+
+            <div>
+              <label className="form-label text-xs">Contribution Weightage per Employee (%)</label>
+              <input name="weightage" type="number" min={10} max={50} className="form-input text-xs" defaultValue={15} required />
+            </div>
+
+            <button type="submit" className="btn-primary flex items-center justify-center gap-2 py-2 text-xs font-semibold"
+              style={{ background: 'var(--brand-gradient)' }}>
+              <Award size={14} /> Push KPI to Team Sheets
+            </button>
+          </form>
+        </div>
+      </Card>
     </div>
   );
 }

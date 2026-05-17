@@ -93,9 +93,9 @@ export default function NewGoalPage() {
               <select id="uom_type" className="form-input" {...register('uom_type')}>
                 <option value="">Select…</option>
                 <option value="percentage">Percentage (%)</option>
-                <option value="number">Number</option>
-                <option value="currency">Currency (₹)</option>
-                <option value="boolean">Boolean (Yes/No)</option>
+                <option value="number">Numeric</option>
+                <option value="currency">Timeline (Days)</option>
+                <option value="boolean">Zero-based (0 = Success)</option>
                 <option value="rating">Rating (1–5)</option>
               </select>
               {errors.uom_type && <p className="mt-1 text-xs" style={{ color: 'var(--status-error)' }}>{errors.uom_type.message}</p>}

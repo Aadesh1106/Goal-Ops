@@ -1,12 +1,35 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { PageHeader, KpiCard } from '@/components/layout/DashboardShell';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { Users, Target, CheckSquare, AlertTriangle, Activity } from 'lucide-react';
+import { Users, Target, CheckSquare, AlertTriangle, Activity, Lock, Unlock, Download } from 'lucide-react';
 import { DepartmentPerformanceChart } from '@/components/ui/Charts';
 
 export const metadata = { title: 'Admin Dashboard' };
+
+async function unlockGoal(formData: FormData) {
+  'use server';
+  const supabase = await createClient();
+  const goalId = formData.get('goalId') as string;
+  
+  await supabase.from('goals').update({ status: 'draft' }).eq('id', goalId);
+  
+  // Log audit trail
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    await supabase.from('audit_logs').insert({
+      actor_id: user.id,
+      entity_type: 'goal',
+      entity_id: goalId,
+      action: 'goal_reopened',
+      metadata: { unlocked_by_admin: true }
+    });
+  }
+
+  revalidatePath('/dashboard/admin');
+}
 
 export default async function AdminDashboardPage() {
   const supabase = await createClient();
@@ -45,11 +68,22 @@ export default async function AdminDashboardPage() {
     return { department: dept, completion };
   });
 
+  const { data: lockedGoals } = await supabase
+    .from('goals')
+    .select('id, title, status, profiles!goals_employee_id_fkey(full_name, employee_code)')
+    .in('status', ['approved', 'locked'])
+    .limit(5);
+
   return (
     <div>
       <PageHeader
         title="Admin Control Centre"
         subtitle="Platform-wide governance overview and operational intelligence"
+        action={
+          <a href="/api/export" className="btn-primary flex items-center gap-2 text-sm px-4 py-2">
+            <Download size={15} /> Export Achievement Report (CSV)
+          </a>
+        }
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -100,6 +134,52 @@ export default async function AdminDashboardPage() {
           </div>
         </Card>
       </div>
+
+      <Card className="flex flex-col mt-6">
+        <CardHeader>
+          <CardTitle>Goal Governance Controls (Lock Bypass & Exception Management)</CardTitle>
+        </CardHeader>
+        <div className="flex flex-col gap-4">
+          {lockedGoals && lockedGoals.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', color: 'var(--text-muted)' }} className="text-xs">
+                    <th className="pb-2">Employee</th>
+                    <th className="pb-2">Goal Title</th>
+                    <th className="pb-2">Status</th>
+                    <th className="pb-2 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {lockedGoals.map((g: any) => (
+                    <tr key={g.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }} className="text-xs">
+                      <td className="py-2.5 font-medium">
+                        {g.profiles?.full_name} <span className="text-[10px] block" style={{ color: 'var(--text-muted)' }}>{g.profiles?.employee_code}</span>
+                      </td>
+                      <td className="py-2.5 max-w-[300px] truncate">{g.title}</td>
+                      <td className="py-2.5">
+                        <Badge variant={g.status === 'locked' ? 'approved' : 'draft'} dot>{g.status}</Badge>
+                      </td>
+                      <td className="py-2.5 text-right">
+                        <form action={unlockGoal}>
+                          <input type="hidden" name="goalId" value={g.id} />
+                          <button type="submit" className="px-2.5 py-1.5 rounded text-xs font-semibold inline-flex items-center gap-1 transition-colors"
+                            style={{ background: 'rgba(245,158,11,0.1)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.2)' }}>
+                            <Unlock size={12} /> Unlock & Reopen
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-xs text-center py-6" style={{ color: 'var(--text-muted)' }}>No locked or approved goals on the platform right now.</p>
+          )}
+        </div>
+      </Card>
     </div>
   );
 }

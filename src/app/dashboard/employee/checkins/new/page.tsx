@@ -51,11 +51,15 @@ export default function NewCheckinPage() {
     fetchGoals();
   }, []);
 
+  const [goalStatus, setGoalStatus] = useState('On Track');
+
   const onSubmit = async (values: CreateCheckinFormValues) => {
     setServerError(null);
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push('/auth/login'); return; }
+
+    const remarksWithStatus = `[Status: ${goalStatus}] ${values.employee_remarks || ''}`.trim();
 
     const { error } = await supabase.from('quarterly_checkins').insert({
       employee_id: user.id,
@@ -64,7 +68,7 @@ export default function NewCheckinPage() {
       cycle_year: values.cycle_year,
       planned_value: values.planned_value,
       actual_value: values.actual_value,
-      employee_remarks: values.employee_remarks || null,
+      employee_remarks: remarksWithStatus || null,
       status: 'submitted',
       submitted_at: new Date().toISOString()
     });
@@ -153,6 +157,17 @@ export default function NewCheckinPage() {
                 <input id="actual_value" type="number" step="0.01" className="form-input"
                   {...register('actual_value', { valueAsNumber: true })} />
                 {errors.actual_value && <p className="mt-1 text-xs" style={{ color: 'var(--status-error)' }}>{errors.actual_value.message}</p>}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="form-label" htmlFor="goal_status">Current Progress Status</label>
+                <select id="goal_status" className="form-input" value={goalStatus} onChange={(e) => setGoalStatus(e.target.value)}>
+                  <option value="Not Started">Not Started</option>
+                  <option value="On Track">On Track</option>
+                  <option value="Completed">Completed</option>
+                </select>
               </div>
             </div>
 

@@ -110,12 +110,12 @@ export default function EditGoalPage() {
             <div>
               <label className="form-label" htmlFor="edit-uom">Unit of Measurement</label>
               <select id="edit-uom" className="form-input" {...register('uom_type')}>
-                <option value="percentage">Percentage (%)</option>
-                <option value="number">Number</option>
-                <option value="currency">Currency (₹)</option>
-                <option value="boolean">Boolean (Yes/No)</option>
-                <option value="rating">Rating (1–5)</option>
-              </select>
+                 <option value="percentage">Percentage (%)</option>
+                 <option value="number">Numeric</option>
+                 <option value="currency">Timeline (Days)</option>
+                 <option value="boolean">Zero-based (0 = Success)</option>
+                 <option value="rating">Rating (1–5)</option>
+               </select>
               {errors.uom_type && <p className="mt-1 text-xs" style={{ color: 'var(--status-error)' }}>{errors.uom_type.message}</p>}
             </div>
             <div>

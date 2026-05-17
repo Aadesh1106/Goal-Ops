@@ -88,6 +88,12 @@ export default async function EmployeeGoalsPage() {
                     <Badge variant={goal.status as 'draft' | 'submitted' | 'approved' | 'rejected' | 'locked'} dot>
                       {goal.status}
                     </Badge>
+                    {goal.title.startsWith('[Shared]') && (
+                      <span className="text-[10px] px-2 py-0.5 rounded font-semibold text-white"
+                        style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}>
+                        Shared Goal
+                      </span>
+                    )}
                   </div>
                   <h3 className="font-semibold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>
                     {goal.title}
