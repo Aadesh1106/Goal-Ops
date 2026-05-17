@@ -356,6 +356,23 @@ CREATE POLICY "goals: employee creates own"
   ON goals FOR INSERT
   WITH CHECK (employee_id = auth.uid() AND current_user_role() = 'employee');
 
+CREATE POLICY "goals: manager inserts team goals"
+  ON goals FOR INSERT
+  WITH CHECK (
+    (employee_id = auth.uid() AND current_user_role() = 'manager')
+    OR
+    (
+      current_user_role() = 'manager'
+      AND employee_id IN (
+        SELECT id FROM profiles WHERE manager_id = auth.uid()
+      )
+    )
+  );
+
+CREATE POLICY "goals: admin inserts all"
+  ON goals FOR INSERT
+  WITH CHECK (current_user_role() = 'admin');
+
 CREATE POLICY "goals: employee updates draft own"
   ON goals FOR UPDATE
   USING (employee_id = auth.uid() AND status IN ('draft', 'rejected'));
