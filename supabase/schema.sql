@@ -128,9 +128,17 @@ BEGIN
     NEW.locked_at = NOW();
   END IF;
   -- Prevent editing locked goals (only admin can unlock via direct update)
-  IF OLD.status = 'locked' AND NEW.status = 'locked'
-     AND (NEW.title != OLD.title OR NEW.weightage != OLD.weightage OR NEW.target_value != OLD.target_value) THEN
-    RAISE EXCEPTION 'Cannot modify a locked goal';
+  -- Exception: Allow adjusting weightage of shared goals (title starting with '[Shared]')
+  IF OLD.status = 'locked' AND NEW.status = 'locked' THEN
+    IF OLD.title LIKE '[Shared]%' THEN
+      IF NEW.title != OLD.title OR NEW.target_value != OLD.target_value OR NEW.description != OLD.description OR NEW.thrust_area != OLD.thrust_area OR NEW.uom_type != OLD.uom_type THEN
+        RAISE EXCEPTION 'Cannot modify title or targets of a shared goal';
+      END IF;
+    ELSE
+      IF NEW.title != OLD.title OR NEW.weightage != OLD.weightage OR NEW.target_value != OLD.target_value OR NEW.description != OLD.description OR NEW.thrust_area != OLD.thrust_area OR NEW.uom_type != OLD.uom_type THEN
+        RAISE EXCEPTION 'Cannot modify a locked goal';
+      END IF;
+    END IF;
   END IF;
   RETURN NEW;
 END;
