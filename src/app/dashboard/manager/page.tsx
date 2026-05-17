@@ -96,6 +96,14 @@ export default async function ManagerDashboardPage() {
     .select('status')
     .in('employee_id', teamIds.length > 0 ? teamIds : ['00000000-0000-0000-0000-000000000000']);
 
+  // Pending check-ins
+  const { data: pendingCheckins } = await supabase
+    .from('quarterly_checkins')
+    .select('*, goals(title), profiles!quarterly_checkins_employee_id_fkey(full_name)')
+    .in('employee_id', teamIds.length > 0 ? teamIds : ['00000000-0000-0000-0000-000000000000'])
+    .eq('status', 'submitted')
+    .order('created_at', { ascending: false });
+
   const pending = pendingApprovals?.length ?? 0;
   const approved = teamGoals?.filter(g => g.status === 'approved' || g.status === 'locked').length ?? 0;
   const totalGoals = teamGoals?.length ?? 0;
@@ -111,7 +119,7 @@ export default async function ManagerDashboardPage() {
         <KpiCard label="Total Team Goals" value={totalGoals} icon={<TrendingUp size={16} style={{ color: '#06b6d4' }} />} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Pending Approvals */}
         <Card>
           <CardHeader>
@@ -171,6 +179,46 @@ export default async function ManagerDashboardPage() {
           ) : (
             <p className="text-sm text-center py-8" style={{ color: 'var(--text-muted)' }}>
               No team members assigned yet
+            </p>
+          )}
+        </Card>
+
+        {/* Pending Check-ins */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Pending Check-ins</CardTitle>
+            {pendingCheckins && pendingCheckins.length > 0 && (
+              <Link href="/dashboard/manager/checkins"
+                className="text-xs px-3 py-1 rounded-lg"
+                style={{ background: 'var(--bg-elevated)', color: '#818cf8' }}>
+                View all →
+              </Link>
+            )}
+          </CardHeader>
+          {pendingCheckins && pendingCheckins.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {pendingCheckins.slice(0, 4).map((c: any) => (
+                <Link key={c.id} href={`/dashboard/manager/checkins/${c.id}`}
+                  className="flex flex-col py-2 hover:opacity-80 transition-opacity"
+                  style={{ borderBottom: '1px solid var(--bg-border)' }}>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-sm font-medium truncate max-w-[80%]" style={{ color: 'var(--text-primary)' }}>
+                      {c.goals?.title}
+                    </p>
+                    <span className="text-xs font-bold" style={{ color: 'var(--brand-accent)' }}>{c.quarter}</span>
+                  </div>
+                  <p className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>
+                    {c.profiles?.full_name} · {c.progress_percentage}% achieved
+                  </p>
+                  <div className="progress-bar h-1">
+                    <div className="progress-fill h-1" style={{ width: `${c.progress_percentage}%` }} />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-center py-8" style={{ color: 'var(--text-muted)' }}>
+              No pending check-ins 🥳
             </p>
           )}
         </Card>
