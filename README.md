@@ -213,7 +213,7 @@ Judges can explore the complete application flow using these pre-configured acco
 
 
 
-* **Option 5 (Newly Registered Employee Sandbox):**
+* **Option 4 (Newly Registered Employee Sandbox):**
   * **Email:** `google@google.com`
   * **Password:** `password123` *(or your custom password)*
 
