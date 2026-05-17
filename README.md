@@ -188,15 +188,30 @@ Judges can explore the complete application flow using these pre-configured acco
 * **Option 1 (Perfect 100% Compliant Sheet Sandbox):**
   * **Email:** `arun@hpcl.com`
   * **Password:** `password123`
-  * **Goal Weightage Setup (Strictly 100%):**
+  * **Goal Weightage Setup:**
     1. `[Shared] Zero Workplace Security Violations` (Locked Departmental KPI) — **15%** weightage
     2. `Enhance Core API Throughput and Reliability` — **30%** weightage
     3. `Reduce Production Deployment Cycle Time` — **25%** weightage
     4. `Maintain Zero Critical Security Vulnerabilities` — **20%** weightage
     5. `Implement Architectural Design Reviews` — **10%** weightage
-    * **Total:** **100%** (fully compliant, locked and approved).
+    * **Total Weightage Used:** **100%**
+    * **Remaining Weightage Space Left:** **0%** (fully compliant, locked and approved).
 
-* **Option 2 (Historical 115% Sheet - Action Required to Rectify):**
+* **Option 2 (Empty Sheet Sandbox - 100% Space Available):**
+  * **Email:** `varun@hpcl.com`
+  * **Password:** `password123`
+  * **Goal Weightage Setup:** No active goals configured.
+    * **Total Weightage Used:** **0%**
+    * **Remaining Weightage Space Left:** **100%** (perfect for judges to demo creating new goals from scratch!).
+
+* **Option 3 (Empty Sheet Sandbox - 100% Space Available):**
+  * **Email:** `aravind@hpcl.com`
+  * **Password:** `password123`
+  * **Goal Weightage Setup:** No active goals configured.
+    * **Total Weightage Used:** **0%**
+    * **Remaining Weightage Space Left:** **100%** (perfect for judges to demo creating new goals from scratch!).
+
+* **Option 4 (Historical 115% Sheet - Action Required to Rectify):**
   * **Email:** `employee@hpcl.com`
   * **Password:** `password123`
   * **Goal Weightage Setup (Current 115%):**
@@ -206,10 +221,11 @@ Judges can explore the complete application flow using these pre-configured acco
     4. `Enhance Core API Throughput and Reliability` — **25%** weightage
     5. `Maintain Zero Critical Security Vulnerabilities` — **20%** weightage
     6. `Reduce Production Deployment Cycle Time` — **20%** weightage
-    * **Total:** **115%** (Exceeds limit!).
+    * **Total Weightage Used:** **115%**
+    * **Remaining Weightage Space Left:** **-15%** (Exceeds limit!).
     * *Demo Flow:* Click **Edit** on any of these goals (which will automatically revert them to `draft` status) and adjust their weightage to balance the sheet to exactly **100%** so you can submit them back to the manager!
 
-* **Option 3 (Newly Registered Employee Sandbox):**
+* **Option 5 (Newly Registered Employee Sandbox):**
   * **Email:** `google@google.com`
   * **Password:** `password123` *(or your custom password)*
 

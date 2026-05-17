@@ -6,7 +6,9 @@ const keepEmails = [
   'manager@hpcl.com',
   'admin@hpcl.com',
   'google@google.com',
-  'arun@hpcl.com'
+  'arun@hpcl.com',
+  'varun@hpcl.com',
+  'aravind@hpcl.com'
 ];
 
 async function run() {
