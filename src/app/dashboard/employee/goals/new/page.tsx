@@ -28,6 +28,18 @@ export default function NewGoalPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push('/auth/login'); return; }
 
+    // Fetch existing goals to check total weightage
+    const { data: existingGoals } = await supabase
+      .from('goals')
+      .select('weightage')
+      .eq('employee_id', user.id);
+
+    const currentTotal = existingGoals?.reduce((s, g) => s + g.weightage, 0) ?? 0;
+    if (currentTotal + values.weightage > 100) {
+      setServerError(`Cannot add goal. Adding this goal's weightage (${values.weightage}%) would make the total weightage ${currentTotal + values.weightage}%, which strictly exceeds the 100% limit. (Current total weightage is ${currentTotal}%).`);
+      return;
+    }
+
     const { error } = await supabase.from('goals').insert({
       employee_id: user.id,
       thrust_area: values.thrust_area,

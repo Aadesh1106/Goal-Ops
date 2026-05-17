@@ -52,7 +52,11 @@ export default async function EmployeeGoalsPage() {
       />
 
       {/* Weightage bar */}
-      <div className="card mb-5 p-4">
+      <div className="card mb-5 p-4 transition-all duration-300" style={{
+        borderColor: totalWeightage > 100 ? 'rgba(239, 68, 68, 0.35)' : totalWeightage === 100 ? 'rgba(16, 185, 129, 0.35)' : undefined,
+        background: totalWeightage > 100 ? 'rgba(239, 68, 68, 0.05)' : totalWeightage === 100 ? 'rgba(16, 185, 129, 0.05)' : undefined,
+        boxShadow: totalWeightage > 100 ? '0 0 15px rgba(239, 68, 68, 0.08)' : undefined
+      }}>
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
             Total Weightage

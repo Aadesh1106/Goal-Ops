@@ -48,6 +48,23 @@ export default function EditGoalPage() {
   const onSubmit = async (values: CreateGoalFormValues) => {
     setServerError(null);
     const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { router.push('/auth/login'); return; }
+
+    // Fetch existing goals to check total weightage, excluding the current goal
+    const { data: existingGoals } = await supabase
+      .from('goals')
+      .select('id, weightage')
+      .eq('employee_id', user.id);
+
+    const otherGoalsTotal = existingGoals
+      ?.filter(g => g.id !== goalId)
+      ?.reduce((s, g) => s + g.weightage, 0) ?? 0;
+
+    if (otherGoalsTotal + values.weightage > 100) {
+      setServerError(`Cannot update goal. Changing this goal's weightage to ${values.weightage}% would make the total weightage ${otherGoalsTotal + values.weightage}%, which strictly exceeds the 100% limit. (Total weightage of other goals is ${otherGoalsTotal}%).`);
+      return;
+    }
 
     const { error } = await supabase.from('goals').update({
       thrust_area: values.thrust_area,
