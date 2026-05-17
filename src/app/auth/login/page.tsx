@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -16,12 +16,32 @@ export default function LoginPage() {
   const [showSsoModal, setShowSsoModal] = useState(false);
   const [showLiveSsoWarning, setShowLiveSsoWarning] = useState(false);
   const [isSsoLoggingIn, setIsSsoLoggingIn] = useState(false);
+  const [fetchedProfiles, setFetchedProfiles] = useState<any[]>([]);
+  const [isLoadingProfiles, setIsLoadingProfiles] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
+
+  useEffect(() => {
+    if (showSsoModal) {
+      setIsLoadingProfiles(true);
+      fetch('/api/profiles')
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setFetchedProfiles(data);
+          }
+          setIsLoadingProfiles(false);
+        })
+        .catch((err) => {
+          console.error('Failed to load dynamic profiles:', err);
+          setIsLoadingProfiles(false);
+        });
+    }
+  }, [showSsoModal]);
 
   const handleMicrosoftLogin = () => {
     setServerError(null);
@@ -295,28 +315,49 @@ export default function LoginPage() {
               </p>
               
               {/* Persona Grid */}
-              <div className="flex flex-col gap-2.5 mb-6">
-                <span className="text-[10px] uppercase font-bold tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                  Select simulated enterprise identity:
-                </span>
+              <div className="flex flex-col gap-2.5 mb-6 max-h-[320px] overflow-y-auto pr-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-bold tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                    Select simulated enterprise identity:
+                  </span>
+                  {isLoadingProfiles && (
+                    <span className="text-[10px] animate-pulse" style={{ color: '#818cf8' }}>Syncing directory...</span>
+                  )}
+                </div>
                 
-                {[
-                  { name: 'Arjun Engineer (Employee)', email: 'employee@hpcl.com', desc: 'HPCL Technical Stream' },
-                  { name: 'google (Employee)', email: 'google@google.com', desc: 'Google Federated Identity' },
-                  { name: 'Sarah Manager (L1 Manager)', email: 'manager@hpcl.com', desc: 'Approvals & Team Check-ins' },
-                  { name: 'Boss Admin (HR / Exception)', email: 'admin@hpcl.com', desc: 'Audit Logs & Escalation Center' }
-                ].map((persona) => (
-                  <button
-                    key={persona.email}
-                    disabled={isSsoLoggingIn}
-                    onClick={() => handleSimulatedLogin(persona.email)}
-                    className="w-full flex flex-col items-start p-3 rounded-xl border text-left transition-all hover:bg-white/5 active:scale-[0.98] disabled:opacity-50"
-                    style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--bg-border)', cursor: 'pointer' }}
-                  >
-                    <span className="text-xs font-semibold text-white">{persona.name}</span>
-                    <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{persona.email} · {persona.desc}</span>
-                  </button>
-                ))}
+                {(() => {
+                  const defaultPersonas = [
+                    { name: 'Arjun Engineer (Employee)', email: 'employee@hpcl.com', desc: 'HPCL Technical Stream' },
+                    { name: 'google (Employee)', email: 'google@google.com', desc: 'Google Federated Identity' },
+                    { name: 'Sarah Manager (L1 Manager)', email: 'manager@hpcl.com', desc: 'Approvals & Team Check-ins' },
+                    { name: 'Boss Admin (HR / Exception)', email: 'admin@hpcl.com', desc: 'Audit Logs & Escalation Center' }
+                  ];
+
+                  const mergedPersonas = [...defaultPersonas];
+                  fetchedProfiles.forEach((p: any) => {
+                    if (!mergedPersonas.some((item) => item.email.toLowerCase() === p.email.toLowerCase())) {
+                      const displayRole = p.role === 'admin' ? 'HR / Exception' : (p.role === 'manager' ? 'L1 Manager' : 'Employee');
+                      mergedPersonas.push({
+                        name: `${p.full_name} (${displayRole})`,
+                        email: p.email,
+                        desc: p.designation || p.department || `${displayRole} Account`
+                      });
+                    }
+                  });
+
+                  return mergedPersonas.map((persona) => (
+                    <button
+                      key={persona.email}
+                      disabled={isSsoLoggingIn}
+                      onClick={() => handleSimulatedLogin(persona.email)}
+                      className="w-full flex flex-col items-start p-3 rounded-xl border text-left transition-all hover:bg-white/5 active:scale-[0.98] disabled:opacity-50"
+                      style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--bg-border)', cursor: 'pointer' }}
+                    >
+                      <span className="text-xs font-semibold text-white">{persona.name}</span>
+                      <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{persona.email} · {persona.desc}</span>
+                    </button>
+                  ));
+                })()}
               </div>
 
               <div className="flex justify-end pt-3 border-t" style={{ borderColor: 'var(--bg-border)' }}>
