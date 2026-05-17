@@ -119,7 +119,7 @@ export default async function ManagerDashboardPage() {
         <KpiCard label="Total Team Goals" value={totalGoals} icon={<TrendingUp size={16} style={{ color: '#06b6d4' }} />} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Pending Approvals */}
         <Card>
           <CardHeader>
@@ -182,9 +182,75 @@ export default async function ManagerDashboardPage() {
             </p>
           )}
         </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-6">
+        {/* Push Departmental KPI (Shared Goals) */}
+        <Card className="flex flex-col h-full">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Share2 size={16} className="text-indigo-400" />
+              Push Departmental KPI (Shared Goals)
+            </CardTitle>
+          </CardHeader>
+          <div className="flex flex-col gap-4">
+            <p className="text-xs text-secondary-muted" style={{ color: 'var(--text-muted)' }}>
+              Establish a unified departmental KPI and push it to all employees in your team instantly. Employees will receive the goal as pre-approved and locked, with title and targets locked to read-only.
+            </p>
+
+            <form action={pushSharedGoal} className="flex flex-col gap-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="form-label text-xs">Thrust Area</label>
+                  <select name="thrustArea" className="form-input text-xs py-2" required>
+                    <option value="Operational Excellence">Operational Excellence</option>
+                    <option value="Revenue Growth">Revenue Growth</option>
+                    <option value="Innovation & Technology">Innovation & Technology</option>
+                    <option value="Compliance & Risk">Compliance & Risk</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="form-label text-xs">Unit of Measurement (UoM)</label>
+                  <select name="uomType" className="form-input text-xs py-2" required>
+                    <option value="percentage">Percentage (%)</option>
+                    <option value="number">Numeric</option>
+                    <option value="currency">Timeline (Days)</option>
+                    <option value="boolean">Zero-based (0 = Success)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="form-label text-xs">Goal Title</label>
+                  <input name="title" type="text" className="form-input text-xs" placeholder="e.g. Complete quarterly safety audits" required />
+                </div>
+                <div>
+                  <label className="form-label text-xs">Target Value</label>
+                  <input name="targetValue" type="number" step="0.01" className="form-input text-xs" placeholder="e.g. 100" required />
+                </div>
+              </div>
+
+              <div>
+                <label className="form-label text-xs">Description</label>
+                <textarea name="description" className="form-input text-xs" rows={2} placeholder="Explain the expected outcomes and operational significance..." required />
+              </div>
+
+              <div>
+                <label className="form-label text-xs">Contribution Weightage per Employee (%)</label>
+                <input name="weightage" type="number" min={10} max={50} className="form-input text-xs" defaultValue={15} required />
+              </div>
+
+              <button type="submit" className="btn-primary flex items-center justify-center gap-2 py-2 text-xs font-semibold"
+                style={{ background: 'var(--brand-gradient)' }}>
+                <Award size={14} /> Push KPI to Team Sheets
+              </button>
+            </form>
+          </div>
+        </Card>
 
         {/* Pending Check-ins */}
-        <Card>
+        <Card className="flex flex-col h-full">
           <CardHeader>
             <CardTitle>Pending Check-ins</CardTitle>
             {pendingCheckins && pendingCheckins.length > 0 && (
@@ -223,69 +289,6 @@ export default async function ManagerDashboardPage() {
           )}
         </Card>
       </div>
-
-      <Card className="flex flex-col mt-6 max-w-2xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Share2 size={16} className="text-indigo-400" />
-            Push Departmental KPI (Shared Goals)
-          </CardTitle>
-        </CardHeader>
-        <div className="flex flex-col gap-4">
-          <p className="text-xs text-secondary-muted" style={{ color: 'var(--text-muted)' }}>
-            Establish a unified departmental KPI and push it to all employees in your team instantly. Employees will receive the goal as pre-approved and locked, with title and targets locked to read-only.
-          </p>
-
-          <form action={pushSharedGoal} className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="form-label text-xs">Thrust Area</label>
-                <select name="thrustArea" className="form-input text-xs py-2" required>
-                  <option value="Operational Excellence">Operational Excellence</option>
-                  <option value="Revenue Growth">Revenue Growth</option>
-                  <option value="Innovation & Technology">Innovation & Technology</option>
-                  <option value="Compliance & Risk">Compliance & Risk</option>
-                </select>
-              </div>
-              <div>
-                <label className="form-label text-xs">Unit of Measurement (UoM)</label>
-                <select name="uomType" className="form-input text-xs py-2" required>
-                  <option value="percentage">Percentage (%)</option>
-                  <option value="number">Numeric</option>
-                  <option value="currency">Timeline (Days)</option>
-                  <option value="boolean">Zero-based (0 = Success)</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="form-label text-xs">Goal Title</label>
-                <input name="title" type="text" className="form-input text-xs" placeholder="e.g. Complete quarterly safety audits" required />
-              </div>
-              <div>
-                <label className="form-label text-xs">Target Value</label>
-                <input name="targetValue" type="number" step="0.01" className="form-input text-xs" placeholder="e.g. 100" required />
-              </div>
-            </div>
-
-            <div>
-              <label className="form-label text-xs">Description</label>
-              <textarea name="description" className="form-input text-xs" rows={2} placeholder="Explain the expected outcomes and operational significance..." required />
-            </div>
-
-            <div>
-              <label className="form-label text-xs">Contribution Weightage per Employee (%)</label>
-              <input name="weightage" type="number" min={10} max={50} className="form-input text-xs" defaultValue={15} required />
-            </div>
-
-            <button type="submit" className="btn-primary flex items-center justify-center gap-2 py-2 text-xs font-semibold"
-              style={{ background: 'var(--brand-gradient)' }}>
-              <Award size={14} /> Push KPI to Team Sheets
-            </button>
-          </form>
-        </div>
-      </Card>
     </div>
   );
 }
