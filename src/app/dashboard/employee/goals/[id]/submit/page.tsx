@@ -18,7 +18,7 @@ async function submitGoal(goalId: string) {
   // Verify total weightage does not exceed 100 before submitting
   const { data: allGoals } = await supabase
     .from('goals').select('weightage, id, status').eq('employee_id', user.id);
-  const total = allGoals?.reduce((s, g) => s + g.weightage, 0) ?? 0;
+  const total = allGoals?.filter((g) => g.status !== 'rejected').reduce((s, g) => s + g.weightage, 0) ?? 0;
   if (total > 100) return;
 
   // Update the goal status to submitted
@@ -68,8 +68,8 @@ export default async function SubmitGoalPage({ params }: { params: Promise<{ id:
   const { data: goal } = await supabase.from('goals').select('*').eq('id', id).eq('employee_id', user.id).single();
   if (!goal || goal.status !== 'draft') redirect('/dashboard/employee/goals');
 
-  const { data: allGoals } = await supabase.from('goals').select('weightage').eq('employee_id', user.id);
-  const totalWeightage = allGoals?.reduce((s, g) => s + g.weightage, 0) ?? 0;
+  const { data: allGoals } = await supabase.from('goals').select('weightage, status').eq('employee_id', user.id);
+  const totalWeightage = allGoals?.filter((g) => g.status !== 'rejected').reduce((s, g) => s + g.weightage, 0) ?? 0;
   const canSubmit = totalWeightage <= 100;
 
   const handleSubmit = submitGoal.bind(null, id);

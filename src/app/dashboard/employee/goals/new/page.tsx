@@ -31,10 +31,12 @@ export default function NewGoalPage() {
     // Fetch existing goals to check total weightage
     const { data: existingGoals } = await supabase
       .from('goals')
-      .select('weightage')
+      .select('weightage, status')
       .eq('employee_id', user.id);
 
-    const currentTotal = existingGoals?.reduce((s, g) => s + g.weightage, 0) ?? 0;
+    const currentTotal = existingGoals
+      ?.filter((g) => g.status !== 'rejected')
+      ?.reduce((s, g) => s + g.weightage, 0) ?? 0;
     if (currentTotal + values.weightage > 100) {
       setServerError(`Cannot add goal. Adding this goal's weightage (${values.weightage}%) would make the total weightage ${currentTotal + values.weightage}%, which strictly exceeds the 100% limit. (Current total weightage is ${currentTotal}%).`);
       return;

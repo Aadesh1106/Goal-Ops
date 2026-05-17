@@ -32,7 +32,7 @@ export default async function EmployeeGoalsPage() {
     .eq('employee_id', user.id)
     .order('created_at', { ascending: false });
 
-  const totalWeightage = goals?.reduce((s, g) => s + g.weightage, 0) ?? 0;
+  const totalWeightage = goals?.filter((g) => g.status !== 'rejected').reduce((s, g) => s + g.weightage, 0) ?? 0;
   const canAddMore = (goals?.length ?? 0) < 8;
   const canSubmitAll = totalWeightage > 0 && (goals?.some(g => g.status === 'draft') ?? false);
 

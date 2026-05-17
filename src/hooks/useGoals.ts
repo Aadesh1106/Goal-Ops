@@ -40,7 +40,7 @@ export function useGoals(): UseGoalsReturn {
     }
   }, []);
 
-  const totalWeightage = goals.reduce((sum, g) => sum + g.weightage, 0);
+  const totalWeightage = goals.filter((g) => g.status !== 'rejected').reduce((sum, g) => sum + g.weightage, 0);
   const remainingWeightage = GOAL_CONSTRAINTS.TOTAL_WEIGHTAGE - totalWeightage;
   const canAddGoal = goals.length < GOAL_CONSTRAINTS.MAX_GOALS && totalWeightage < GOAL_CONSTRAINTS.TOTAL_WEIGHTAGE;
 

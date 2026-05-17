@@ -23,7 +23,7 @@ export default async function EmployeeDashboardPage() {
   const totalGoals = goals?.length ?? 0;
   const approved = goals?.filter((g) => g.status === 'approved' || g.status === 'locked').length ?? 0;
   const submitted = goals?.filter((g) => g.status === 'submitted').length ?? 0;
-  const totalWeightage = goals?.reduce((s, g) => s + g.weightage, 0) ?? 0;
+  const totalWeightage = goals?.filter((g) => g.status !== 'rejected').reduce((s, g) => s + g.weightage, 0) ?? 0;
 
   // Fetch checkins for chart
   const { data: checkins } = await supabase

@@ -56,11 +56,11 @@ export default function EditGoalPage() {
     // Fetch existing goals to check total weightage, excluding the current goal
     const { data: existingGoals } = await supabase
       .from('goals')
-      .select('id, weightage')
+      .select('id, weightage, status')
       .eq('employee_id', user.id);
 
     const otherGoalsTotal = existingGoals
-      ?.filter(g => g.id !== goalId)
+      ?.filter(g => g.id !== goalId && g.status !== 'rejected')
       ?.reduce((s, g) => s + g.weightage, 0) ?? 0;
 
     if (otherGoalsTotal + values.weightage > 100) {
