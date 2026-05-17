@@ -1,0 +1,32 @@
+GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated, anon, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated, anon, service_role;
+
+DROP POLICY IF EXISTS "goals_employee_all" ON goals;
+DROP POLICY IF EXISTS "goals_manager_read" ON goals;
+DROP POLICY IF EXISTS "goals_manager_update" ON goals;
+DROP POLICY IF EXISTS "approvals_manager_all" ON approvals;
+DROP POLICY IF EXISTS "approvals_admin_all" ON approvals;
+DROP POLICY IF EXISTS "escalations_auth" ON escalations;
+DROP POLICY IF EXISTS "checkins_employee_all" ON quarterly_checkins;
+DROP POLICY IF EXISTS "checkins_manager_read" ON quarterly_checkins;
+DROP POLICY IF EXISTS "checkins_manager_update" ON quarterly_checkins;
+DROP POLICY IF EXISTS "audit_insert" ON audit_logs;
+DROP POLICY IF EXISTS "audit_read" ON audit_logs;
+DROP POLICY IF EXISTS "profiles_all_read" ON profiles;
+DROP POLICY IF EXISTS "profiles_self_update" ON profiles;
+DROP POLICY IF EXISTS "profiles_self_insert" ON profiles;
+
+CREATE POLICY "profiles_all_read" ON profiles FOR SELECT USING (true);
+CREATE POLICY "profiles_self_update" ON profiles FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "profiles_self_insert" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "goals_employee_all" ON goals FOR ALL USING (auth.uid() = employee_id);
+CREATE POLICY "goals_manager_read" ON goals FOR SELECT USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('manager', 'admin')));
+CREATE POLICY "goals_manager_update" ON goals FOR UPDATE USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('manager', 'admin')));
+CREATE POLICY "checkins_employee_all" ON quarterly_checkins FOR ALL USING (auth.uid() = employee_id);
+CREATE POLICY "checkins_manager_read" ON quarterly_checkins FOR SELECT USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('manager', 'admin')));
+CREATE POLICY "checkins_manager_update" ON quarterly_checkins FOR UPDATE USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('manager', 'admin')));
+CREATE POLICY "approvals_manager_all" ON approvals FOR ALL USING (auth.uid() = manager_id OR auth.uid() = employee_id);
+CREATE POLICY "approvals_admin_all" ON approvals FOR ALL USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "escalations_auth" ON escalations FOR ALL USING (auth.uid() IS NOT NULL);
+CREATE POLICY "audit_insert" ON audit_logs FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY "audit_read" ON audit_logs FOR SELECT USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('manager', 'admin')));
