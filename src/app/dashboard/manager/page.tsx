@@ -121,7 +121,7 @@ export default async function ManagerDashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Pending Approvals */}
-        <Card>
+        <Card className="flex flex-col h-full min-h-[220px]">
           <CardHeader>
             <CardTitle>Pending Approvals</CardTitle>
             {pending > 0 && (
@@ -136,8 +136,8 @@ export default async function ManagerDashboardPage() {
             <div className="flex flex-col gap-3">
               {pendingApprovals.slice(0, 4).map((a: any) => (
                 <Link key={a.id} href={`/dashboard/manager/approvals/${a.id}`}
-                  className="flex items-center justify-between py-2 hover:opacity-80 transition-opacity"
-                  style={{ borderBottom: '1px solid var(--bg-border)' }}>
+                   className="flex items-center justify-between py-2 hover:opacity-80 transition-opacity"
+                   style={{ borderBottom: '1px solid var(--bg-border)' }}>
                   <div>
                     <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                       {a.goals?.title}
@@ -151,9 +151,11 @@ export default async function ManagerDashboardPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-center py-8" style={{ color: 'var(--text-muted)' }}>
-              No pending approvals 🎉
-            </p>
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-sm text-center font-medium" style={{ color: 'var(--text-muted)' }}>
+                No pending approvals
+              </p>
+            </div>
           )}
         </Card>
 
@@ -250,7 +252,7 @@ export default async function ManagerDashboardPage() {
         </Card>
 
         {/* Pending Check-ins */}
-        <Card className="flex flex-col h-full">
+        <Card className="flex flex-col h-full min-h-[220px]">
           <CardHeader>
             <CardTitle>Pending Check-ins</CardTitle>
             {pendingCheckins && pendingCheckins.length > 0 && (
@@ -283,9 +285,11 @@ export default async function ManagerDashboardPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-center py-8" style={{ color: 'var(--text-muted)' }}>
-              No pending check-ins 🥳
-            </p>
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-sm text-center font-medium" style={{ color: 'var(--text-muted)' }}>
+                No pending check-ins
+              </p>
+            </div>
           )}
         </Card>
       </div>
