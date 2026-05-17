@@ -14,6 +14,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const [showSsoModal, setShowSsoModal] = useState(false);
+  const [showLiveSsoWarning, setShowLiveSsoWarning] = useState(false);
   const [isSsoLoggingIn, setIsSsoLoggingIn] = useState(false);
 
   const {
@@ -24,6 +25,7 @@ export default function LoginPage() {
 
   const handleMicrosoftLogin = () => {
     setServerError(null);
+    setShowLiveSsoWarning(false);
     setShowSsoModal(true);
   };
 
@@ -274,78 +276,135 @@ export default function LoginPage() {
       {/* SSO Simulation Modal Dialog */}
       {showSsoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}>
-          <div className="w-full max-w-md rounded-2xl p-6 border" style={{ background: '#12131a', borderColor: 'var(--bg-border)' }}>
+          <div className="w-full max-w-md rounded-2xl p-6 border animate-in fade-in zoom-in-95 duration-200" style={{ background: '#12131a', borderColor: 'var(--bg-border)' }}>
             
-            {/* Modal Header */}
-            <div className="flex items-center gap-3 mb-4">
-              <svg className="w-6 h-6 shrink-0" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0 0H11V11H0V0Z" fill="#F25022"/>
-                <path d="M12 0H23V11H12V0Z" fill="#7FBA00"/>
-                <path d="M0 12H11V23H0V12Z" fill="#00A4EF"/>
-                <path d="M12 12H23V23H12V12Z" fill="#FFB900"/>
-              </svg>
-              <h2 className="font-bold text-base text-white">Microsoft Entra ID (SSO) Simulator</h2>
-            </div>
-            
-            <p className="text-xs mb-5" style={{ color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-              Since live Microsoft AD synchronization requires toggling the "Azure" provider inside your private Supabase dashboard, you can trigger a <strong>Simulated SSO Identity Claim</strong> below for testing!
-            </p>
-            
-            {/* Persona Grid */}
-            <div className="flex flex-col gap-2.5 mb-6">
-              <span className="text-[10px] uppercase font-bold tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                Select simulated enterprise identity:
-              </span>
-              
-              {[
-                { name: 'Arjun Engineer (Employee)', email: 'employee@hpcl.com', desc: 'HPCL Technical Stream' },
-                { name: 'google (Employee)', email: 'google@google.com', desc: 'Google Federated Identity' },
-                { name: 'Sarah Manager (L1 Manager)', email: 'manager@hpcl.com', desc: 'Approvals & Team Check-ins' },
-                { name: 'Boss Admin (HR / Exception)', email: 'admin@hpcl.com', desc: 'Audit Logs & Escalation Center' }
-              ].map((persona) => (
+            {showLiveSsoWarning ? (
+              // Live Production Entra ID Setup Warning
+              <div className="flex flex-col">
+                <div className="flex items-center gap-3 mb-4 text-[#fbbf24]">
+                  <svg className="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <h2 className="font-bold text-base text-white">Enable Microsoft Provider in Supabase</h2>
+                </div>
+
+                <p className="text-xs mb-4" style={{ color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                  To establish a live production connection to Microsoft Active Directory, you must toggle the <strong>Azure</strong> provider to <strong>Enabled</strong> in your Supabase Auth settings:
+                </p>
+
+                <div className="flex flex-col gap-3 p-4 rounded-xl border mb-5 text-[11px]" style={{ background: 'rgba(255,255,255,0.01)', borderColor: 'var(--bg-border)' }}>
+                  <div>
+                    <span className="font-semibold text-white block mb-0.5">1. Open Supabase Dashboard</span>
+                    <span style={{ color: 'var(--text-muted)' }}>Go to your project at supabase.com → Authentication → Providers.</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-white block mb-0.5">2. Toggle Azure to Enabled</span>
+                    <span style={{ color: 'var(--text-muted)' }}>Enter your Microsoft Azure Tenant Client ID and Client Secret keys.</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-white block mb-0.5">3. Register Redirect URI in Azure AD Portal</span>
+                    <code className="block p-1.5 rounded mt-1 select-all border text-[10px]" style={{ background: 'rgba(0,0,0,0.3)', borderColor: 'var(--bg-border)', color: '#818cf8' }}>
+                      https://ocgecepbyplfdhuocqow.supabase.co/auth/v1/callback
+                    </code>
+                  </div>
+                </div>
+
+                <p className="text-[10px] mb-6" style={{ color: 'var(--text-muted)', lineHeight: '1.4' }}>
+                  ⚠️ Proceeding without completing this setup will cause Supabase to throw a raw <code>400 Unsupported Provider</code> error page.
+                </p>
+
+                <div className="flex gap-3 justify-end pt-3 border-t" style={{ borderColor: 'var(--bg-border)' }}>
+                  <button
+                    onClick={() => setShowLiveSsoWarning(false)}
+                    className="px-4 py-2 rounded-lg text-xs font-semibold"
+                    style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-primary)', cursor: 'pointer' }}
+                  >
+                    Back to Sandbox
+                  </button>
+                  <button
+                    onClick={triggerLiveOAuthMicrosoft}
+                    className="px-4 py-2 rounded-lg text-xs font-semibold transition-all hover:opacity-90 text-white"
+                    style={{ background: '#ef4444', cursor: 'pointer' }}
+                  >
+                    Proceed to Live Microsoft Sign-In
+                  </button>
+                </div>
+              </div>
+            ) : (
+              // Standard Simulator Selection Grid
+              <div className="flex flex-col">
+                {/* Modal Header */}
+                <div className="flex items-center gap-3 mb-4">
+                  <svg className="w-6 h-6 shrink-0" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 0H11V11H0V0Z" fill="#F25022"/>
+                    <path d="M12 0H23V11H12V0Z" fill="#7FBA00"/>
+                    <path d="M0 12H11V23H0V12Z" fill="#00A4EF"/>
+                    <path d="M12 12H23V23H12V12Z" fill="#FFB900"/>
+                  </svg>
+                  <h2 className="font-bold text-base text-white">Microsoft Entra ID (SSO) Simulator</h2>
+                </div>
+                
+                <p className="text-xs mb-5" style={{ color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                  Since live Microsoft AD synchronization requires toggling the "Azure" provider inside your private Supabase dashboard, you can trigger a <strong>Simulated SSO Identity Claim</strong> below for testing!
+                </p>
+                
+                {/* Persona Grid */}
+                <div className="flex flex-col gap-2.5 mb-6">
+                  <span className="text-[10px] uppercase font-bold tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                    Select simulated enterprise identity:
+                  </span>
+                  
+                  {[
+                    { name: 'Arjun Engineer (Employee)', email: 'employee@hpcl.com', desc: 'HPCL Technical Stream' },
+                    { name: 'google (Employee)', email: 'google@google.com', desc: 'Google Federated Identity' },
+                    { name: 'Sarah Manager (L1 Manager)', email: 'manager@hpcl.com', desc: 'Approvals & Team Check-ins' },
+                    { name: 'Boss Admin (HR / Exception)', email: 'admin@hpcl.com', desc: 'Audit Logs & Escalation Center' }
+                  ].map((persona) => (
+                    <button
+                      key={persona.email}
+                      disabled={isSsoLoggingIn}
+                      onClick={() => handleSimulatedLogin(persona.email)}
+                      className="w-full flex flex-col items-start p-3 rounded-xl border text-left transition-all hover:bg-white/5 active:scale-[0.98] disabled:opacity-50"
+                      style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--bg-border)', cursor: 'pointer' }}
+                    >
+                      <span className="text-xs font-semibold text-white">{persona.name}</span>
+                      <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{persona.email} · {persona.desc}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Separator */}
+                <div className="relative flex py-2 items-center mb-4">
+                  <div className="flex-grow border-t" style={{ borderColor: 'var(--bg-border)' }}></div>
+                  <span className="flex-shrink mx-3 text-[10px]" style={{ color: 'var(--text-muted)' }}>or</span>
+                  <div className="flex-grow border-t" style={{ borderColor: 'var(--bg-border)' }}></div>
+                </div>
+
+                {/* Live OAuth Trigger */}
                 <button
-                  key={persona.email}
+                  onClick={() => setShowLiveSsoWarning(true)}
                   disabled={isSsoLoggingIn}
-                  onClick={() => handleSimulatedLogin(persona.email)}
-                  className="w-full flex flex-col items-start p-3 rounded-xl border text-left transition-all hover:bg-white/5 active:scale-[0.98] disabled:opacity-50"
-                  style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--bg-border)', cursor: 'pointer' }}
+                  className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold border transition-all hover:bg-white/5 disabled:opacity-50"
+                  style={{ borderColor: 'var(--bg-border)', color: 'var(--text-primary)', cursor: 'pointer' }}
                 >
-                  <span className="text-xs font-semibold text-white">{persona.name}</span>
-                  <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{persona.email} · {persona.desc}</span>
+                  Continue to Live production AD Sign-In
                 </button>
-              ))}
-            </div>
+                <p className="text-[9px] text-center mt-1.5" style={{ color: 'var(--text-muted)' }}>
+                  ⚠️ Requires live Azure keys set up inside Supabase Auth Providers console.
+                </p>
 
-            {/* Separator */}
-            <div className="relative flex py-2 items-center mb-4">
-              <div className="flex-grow border-t" style={{ borderColor: 'var(--bg-border)' }}></div>
-              <span className="flex-shrink mx-3 text-[10px]" style={{ color: 'var(--text-muted)' }}>or</span>
-              <div className="flex-grow border-t" style={{ borderColor: 'var(--bg-border)' }}></div>
-            </div>
-
-            {/* Live OAuth Trigger */}
-            <button
-              onClick={triggerLiveOAuthMicrosoft}
-              disabled={isSsoLoggingIn}
-              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold border transition-all hover:bg-white/5 disabled:opacity-50"
-              style={{ borderColor: '#f87171', color: '#f87171', cursor: 'pointer' }}
-            >
-              Continue to Live production AD Sign-In
-            </button>
-            <p className="text-[9px] text-center mt-1.5" style={{ color: 'var(--text-muted)' }}>
-              ⚠️ Requires live Azure keys set up inside Supabase Auth Providers console.
-            </p>
-
-            <div className="flex justify-end mt-5 pt-3 border-t" style={{ borderColor: 'var(--bg-border)' }}>
-              <button
-                disabled={isSsoLoggingIn}
-                onClick={() => setShowSsoModal(false)}
-                className="px-4 py-1.5 rounded-lg text-xs font-semibold"
-                style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-primary)', cursor: 'pointer' }}
-              >
-                Close
-              </button>
-            </div>
+                <div className="flex justify-end mt-5 pt-3 border-t" style={{ borderColor: 'var(--bg-border)' }}>
+                  <button
+                    disabled={isSsoLoggingIn}
+                    onClick={() => setShowSsoModal(false)}
+                    className="px-4 py-1.5 rounded-lg text-xs font-semibold"
+                    style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-primary)', cursor: 'pointer' }}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            )}
 
           </div>
         </div>
