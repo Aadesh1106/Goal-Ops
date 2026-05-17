@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import NavigationRedirectListener from '@/components/NavigationRedirectListener';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -25,7 +26,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body>{children}</body>
+      <body>
+        <NavigationRedirectListener />
+        {children}
+      </body>
     </html>
   );
 }
