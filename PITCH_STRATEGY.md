@@ -106,31 +106,173 @@ graph LR
 
 ## 6. Step-by-Step Live Demo Narration Script
 
-*Follow this walkthrough exactly during your screen share. Speak clearly, explain what you are doing, and point out the visuals.*
+Follow this absolute masterclass walkthrough script during your live screen share. It covers every click, action, specific account email, target value, and spoken word.
 
-### 🎭 Step 1: The Employee Journey (Drafting & Submitting)
-1.  **Action:** Share your screen on the login page.
-2.  **Narration:** *"Let’s log in as our Employee persona, `employee@hpcl.com`. As you can see, the employee dashboard immediately shows a clean, deep-dark glassmorphic UI. No generic colors or basic default styling here—this is designed to look like a premium corporate system."*
-3.  **Action:** Click on **Goals** $\to$ **Define My Goals**.
-4.  **Narration:** *"Let's add a new goal. I will select our Thrust Area: Operational Excellence. I will name it 'Optimize Refinery Throughput', select the UoM Type 'Percentage (%)', and assign a target of 95% with a 20% weightage. Note that our validation checks are running in real time. If I try to submit this sheet now, the system blocks me because the total weight must equal exactly 100%."*
-5.  **Action:** Click `Submit Goals Sheet` (with the bypass active).
-6.  **Narration:** *"For the sake of this evaluation, we have included a silent presentation bypass so we can submit the sheet instantly to show the manager's review flow without getting stuck!"*
+---
 
-### 🎭 Step 2: The L1 Manager Journey (Reviews & Shared KPIs)
-1.  **Action:** Log out of the Employee dashboard and log in as `manager@hpcl.com`.
-2.  **Narration:** *"Now, let's log in as the L1 Manager. On the manager's dashboard, all emojis have been removed and the empty states are centered for a clean, formal corporate look. We have a dedicated approvals desk."*
-3.  **Action:** Click on the pending sheet from Arjun or your employee.
-4.  **Narration:** *"As the manager, I can review Arjun's goals. I have the capability to edit his targets and weightages inline, log my comments, and click 'Approve'. Let's approve Arjun's goals. The goals are now locked instantly."*
-5.  **Action:** Navigate back to the Manager home, add a goal under **Shared KPIs**, and click `Push KPI to Team`.
-6.  **Narration:** *"Now watch this: I want to push a shared departmental KPI to my entire team. I will create a KPI titled 'Zero Workplace Safety Incidents', choose the 'Zero-based' UoM, and click Push. This goal is instantly pushed as a read-only goal onto all my direct reports' sheets, ensuring total organizational alignment."*
+### 🎭 ACT I: The Employee Goal-Setting & Submittal Journey
 
-### 🎭 Step 3: The HR / Admin Cockpit (Governance & Overrides)
-1.  **Action:** Log out and log in as `admin@hpcl.com`.
-2.  **Narration:** *"Finally, let’s log in as the HR Admin. This cockpit is where the overall organizational governance is managed. We can see completion rates, thrust area distributions, and our active **SLA Cycle Escalation** log highlighting overdue submittals."*
-3.  **Action:** Point to the user logs, click `Unlock & Reopen` next to your locked employee.
-4.  **Narration:** *"If Arjun requires an emergency off-cycle adjustment, the admin can click 'Unlock & Reopen' to return his goals to the draft state. Any post-lock changes are immediately written to our immutable audit logs, ensuring we remain audit-ready for evaluations."*
-5.  **Action:** Click **Export CSV**.
-6.  **Narration:** *"With a single click, we can download a complete CSV achievement report for the entire organization. It is fast, lightweight, and fully exportable."*
+#### 1. The Login
+*   **Action:** Open your browser to the login page.
+*   **Action:** Input Email: `employee@hpcl.com` and Password: `password123`. Click **Sign In**.
+*   **Spoken Script:**
+    > *"Let's begin our live demonstration by logging in as our Employee persona, `employee@hpcl.com`. As we sign in, you are greeted by our premium, high-fidelity glassmorphic dashboard. Note the clean typography, harmonized HSL colors, and dark-mode styling tailored specifically for a high-end enterprise experience."*
+
+#### 2. Defining and Validating the Goals
+*   **Action:** Click on **Goals** or **Define My Goals** in the navigation bar.
+*   **Action:** Enter the following 4 sample goals exactly as shown below:
+
+##### Goal 1 (Percentage)
+*   *Thrust Area:* Select **Operational Excellence**
+*   *Goal Title:* `Enhance Core API Throughput and Reliability`
+*   *Goal Description:* `Optimize backend service endpoints, implement Redis query caching, and scale database connection pooling to guarantee maximum service availability under high traffic.`
+*   *UoM:* Select **Percentage (%)**
+*   *Target Value:* Input `99.95`
+*   *Weightage (%):* Input `30`
+*   *Action:* Click **Add Goal** (Notice that the form validation validates the entry).
+
+##### Goal 2 (Timeline)
+*   *Thrust Area:* Select **Cost Optimization**
+*   *Goal Title:* `Reduce Production Deployment Cycle Time`
+*   *Goal Description:* `Refactor the CI/CD build scripts, parallelize automated test suites, and configure cached container builds to minimize the time-to-production lifecycle.`
+*   *UoM:* Select **Timeline (Days)**
+*   *Target Value:* Input `15` *(Remind judges that lower is better!)*
+*   *Weightage (%):* Input `25`
+*   *Action:* Click **Add Goal**.
+
+##### Goal 3 (Zero-based)
+*   *Thrust Area:* Select **Compliance & Risk**
+*   *Goal Title:* `Maintain Zero Critical Security Vulnerabilities`
+*   *Goal Description:* `Implement automated SAST/DAST scanner checks in the deployment workflow and resolve all high-severity library dependencies before production release.`
+*   *UoM:* Select **Zero-based (0 = Success)**
+*   *Target Value:* Input `0` *(Remind judges that zero represents success!)*
+*   *Weightage (%):* Input `20`
+*   *Action:* Click **Add Goal**.
+
+##### Goal 4 (Numeric)
+*   *Thrust Area:* Select **Innovation & Technology**
+*   *Goal Title:* `Implement Architectural Design Reviews`
+*   *Goal Description:* `Author comprehensive engineering system design docs, present architectural updates to stakeholders, and conduct peer technical reviews to promote development quality standards.`
+*   *UoM:* Select **Numeric**
+*   *Target Value:* Input `5`
+*   *Weightage (%):* Input `25`
+*   *Action:* Click **Add Goal**.
+
+*   **Spoken Script:**
+    > *"Now, let's define our 4 core goals covering all unique Units of Measurement required by the BRD. Observe the strict real-time validations running under the hood: our total weight adds up to exactly 100%, and each individual goal is at least 10%. If I try to violate these rules—say, by inputting a weight of 5%—the portal immediately locks the submission desk with clear warnings. This ensures zero data integrity errors reach our HR department."*
+*   **Action:** Click **Submit Goal Sheet**.
+*   **Spoken Script:**
+    > *"Let’s submit our Goal Sheet for approval. The sheet status changes to 'Pending Approval', and all edit rights for this cycle are securely handed over to the L1 Manager. Let's log out to inspect the manager's review flow."*
+*   **Action:** Click **Log Out**.
+
+---
+
+### 🎭 ACT II: The L1 Manager Goal Approval & KPI Push Journey
+
+#### 1. Review and Inline Editing
+*   **Action:** Input Email: `manager@hpcl.com` and Password: `password123`. Click **Sign In**.
+*   **Action:** Navigate to **Approvals Desk** and select the pending sheet submitted by `employee@hpcl.com`.
+*   **Spoken Script:**
+    > *"Now we log in as our L1 Manager, `manager@hpcl.com`. On the manager's dashboard, all emojis have been removed and the empty states are centered for a clean corporate aesthetic. Let’s open the pending goals sheet. As a manager, I have the authority to edit Arjun's targets or weightages inline before final sign-off."*
+*   **Action:** Modify the target of Goal 4 (Design Reviews) from `5` to `6` directly in the manager's input field.
+*   **Action:** Scroll to the comments box and type: `Goals look perfectly aligned with our Q2 engineering priorities. Approved for locking.`
+*   **Action:** Click **Approve Goal Sheet**.
+*   **Spoken Script:**
+    > *"I will adjust the numeric design review target from 5 to 6 inline to demonstrate complete operational flexibility, add my structured feedback comment, and click 'Approve'. Instantly, the goal sheet status updates to 'Approved', triggering our Postgres Row Level Security layer to permanently lock this sheet from any employee-side editing."*
+
+#### 2. Pushing Shared Departmental KPIs
+*   **Action:** Navigate back to the Manager Dashboard and locate the **Shared KPIs / Push Goals** form.
+*   **Action:** Define a new departmental goal:
+    *   *Thrust Area:* **Compliance & Risk**
+    *   *Title:* `Zero Workplace Security Violations`
+    *   *UoM:* Select **Zero-based (0 = Success)**
+    *   *Target:* Input `0`
+*   **Action:** Click **Push KPI to Team Sheets**.
+*   **Spoken Script:**
+    > *"Strategic alignment is a top priority. I want to push a pre-approved, global safety goal to my entire team. I will create a Zero-based KPI for security violations and click 'Push KPI'. This instantly pushes this goal as a pre-approved, read-only goal across all my direct reports' sheets. They can edit its weight contribution to fit their 100% total rule, but the title and target remain locked."*
+*   **Action:** Click **Log Out**.
+
+---
+
+### 🎭 ACT III: The Employee Check-In Journey (Phase 2 Tracking)
+
+#### 1. Logging Achievements against UoMs
+*   **Action:** Input Email: `employee@hpcl.com` and Password: `password123`. Click **Sign In**.
+*   **Action:** Click on **Quarterly Check-ins Workspace** $\to$ **Q1 Check-in** $\to$ **Log Achievements**.
+*   **Spoken Script:**
+    > *"Now let's log back in as our Employee. Because our goals have been approved, our Q1 check-in button is fully unlocked! Let’s log our achievements and observe the dynamic calculations based on UoM Type."*
+*   **Action:** Enter the following actual achievements exactly as shown:
+
+##### Goal 1 (Percentage - Min UoM)
+*   *Planned Target:* `99.95`
+*   *Input Actual:* `99.95`
+*   *Status:* Select **Completed**
+*   *Observe Computed Progress:* `100.00%`
+*   *Spoken Script:*
+    > *"For our percentage UoM where higher is better, logging an actual value of 99.95 computes an exact 100% success progress score using our Min UoM formula."*
+
+##### Goal 2 (Timeline - Max UoM)
+*   *Planned Target:* `15` *(Days)*
+*   *Input Actual:* `12` *(Completed 3 days ahead of schedule!)*
+*   *Status:* Select **Completed**
+*   *Observe Computed Progress:* `125.00%` *(Over-achievement!)*
+*   *Spoken Script:*
+    > *"Watch our lower-is-better Max UoM math: because we completed the deployment cycle in 12 days instead of the planned 15, the system registers a 125% over-achievement score, giving the employee extra credit!"*
+
+##### Goal 3 (Zero-based safety UoM)
+*   *Planned Target:* `0`
+*   *Input Actual:* `0` *(Zero vulnerabilities)*
+*   *Status:* Select **Completed**
+*   *Observe Computed Progress:* `100.00%`
+*   *Spoken Script:*
+    > *"For safety goals where zero is perfect, logging 0 vulnerabilities computes a perfect 100% success progress score. If we had logged 1 incident, progress would drop to 0% immediately."*
+
+##### Goal 4 (Numeric reviews - Min UoM)
+*   *Planned Target:* `6` *(Updated by the manager inline!)*
+*   *Input Actual:* `5` *(Conducted 5 reviews)*
+*   *Status:* Select **On Track**
+*   *Observe Computed Progress:* `83.33%`
+*   *Spoken Script:*
+    > *"Finally, for numeric design reviews, we conducted 5 reviews against our updated target of 6, calculating a clean progress of 83.33% with an On Track status."*
+
+*   **Action:** Click **Submit Q1 Check-in**.
+*   **Spoken Script:**
+    > *"Our check-in sheet is submitted successfully to our L1 Manager. Let’s log out to complete the manager review comment loop."*
+*   **Action:** Click **Log Out**.
+
+---
+
+### 🎭 ACT IV: The Manager Check-in Review Feedback
+
+*   **Action:** Input Email: `manager@hpcl.com` and Password: `password123`. Click **Sign In**.
+*   **Action:** Navigate to **Check-in Reviews** and open the employee's pending Q1 check-in.
+*   **Spoken Script:**
+    > *"Logging back in as the L1 Manager, I navigate to the Check-in Reviews desk. Here, I can see Arjun's planned targets side-by-side with his actual achievements, statuses, and computed scores. Let's add a feedback comment."*
+*   **Action:** Scroll to the manager's comment field and type: `Outstanding work on reducing deployment cycle times. Excellent performance overall!`
+*   **Action:** Click **Sign off Review**.
+*   **Spoken Script:**
+    > *"I will log my positive feedback to document our 1-on-1 performance discussion and click 'Sign off'. Our review is complete and preserved in our secure database logs."*
+*   **Action:** Click **Log Out**.
+
+---
+
+### 🎭 ACT V: The HR / Admin Governance Cockpit
+
+#### 1. Org Metrics & Overrides
+*   **Action:** Input Email: `admin@hpcl.com` and Password: `password123`. Click **Sign In**.
+*   **Action:** Point to the **Thrust Area Distribution Chart** and **Completion Rate Metrics**.
+*   **Spoken Script:**
+    > *"Finally, let’s log in as the HR Admin, `admin@hpcl.com`. This cockpit is where system-wide governance is managed. We can track org-wide completion rates, goal allocations across Thrust Areas, and our rule-based **SLA Cycle Escalation Log** showing which employees or managers have missed cycle deadlines."*
+
+#### 2. Reopening Goals & CSV Export
+*   **Action:** Locate `employee@hpcl.com` in the user logs grid. Click **Unlock & Reopen**.
+*   **Spoken Script:**
+    > *"If an employee requires an off-cycle emergency edit, our Admin can click 'Unlock & Reopen' to bypass the cycle lock, immediately returning their goals sheet to an editable 'draft' state. Any target modifications made after this lock date are captured in our immutable change audit trail logs."*
+*   **Action:** Click **Export CSV** in the top right.
+*   **Spoken Script:**
+    > *"Finally, with a single click on our CSV Export engine, our system streams a complete, Excel-compatible organizational achievement report showing all employee targets, actuals, and computed scores. *
+    > 
+    > *This concludes our live demonstration of a 100% compliant, secure, and production-ready Goal Governance portal. Thank you, and we are now open for your questions!"*
 
 ---
 
