@@ -19,7 +19,7 @@ export const createGoalSchema = z.object({
   }),
   target_value: z
     .number({ error: 'Target must be a number' })
-    .positive('Target must be positive'),
+    .min(0, 'Target must be non-negative'),
   weightage: z
     .number({ error: 'Weightage must be a number' })
     .min(10, 'Minimum weightage is 10%')
