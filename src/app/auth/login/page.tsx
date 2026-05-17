@@ -298,9 +298,10 @@ export default function LoginPage() {
               </span>
               
               {[
-                { name: 'Arjun Engineer (Employee)', email: 'arjun@hpcl.com', desc: 'HPCL Technical Stream' },
+                { name: 'Arjun Engineer (Employee)', email: 'employee@hpcl.com', desc: 'HPCL Technical Stream' },
+                { name: 'google (Employee)', email: 'google@google.com', desc: 'Google Federated Identity' },
                 { name: 'Sarah Manager (L1 Manager)', email: 'manager@hpcl.com', desc: 'Approvals & Team Check-ins' },
-                { name: 'System Admin (HR / Exception)', email: 'admin@goalops.com', desc: 'Audit Logs & Escalation Center' }
+                { name: 'Boss Admin (HR / Exception)', email: 'admin@hpcl.com', desc: 'Audit Logs & Escalation Center' }
               ].map((persona) => (
                 <button
                   key={persona.email}
