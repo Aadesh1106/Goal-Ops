@@ -19,7 +19,7 @@ async function submitGoal(goalId: string) {
   const { data: allGoals } = await supabase
     .from('goals').select('weightage, id, status').eq('employee_id', user.id);
   const total = allGoals?.reduce((s, g) => s + g.weightage, 0) ?? 0;
-  if (total !== 100) return;
+  if (total <= 0) return;
 
   // Update the goal status to submitted
   const { error: updateErr } = await supabase
@@ -70,7 +70,7 @@ export default async function SubmitGoalPage({ params }: { params: Promise<{ id:
 
   const { data: allGoals } = await supabase.from('goals').select('weightage').eq('employee_id', user.id);
   const totalWeightage = allGoals?.reduce((s, g) => s + g.weightage, 0) ?? 0;
-  const canSubmit = totalWeightage === 100;
+  const canSubmit = totalWeightage > 0;
 
   const handleSubmit = submitGoal.bind(null, id);
 

@@ -34,7 +34,7 @@ export default async function EmployeeGoalsPage() {
 
   const totalWeightage = goals?.reduce((s, g) => s + g.weightage, 0) ?? 0;
   const canAddMore = (goals?.length ?? 0) < 8;
-  const canSubmitAll = totalWeightage === 100 && (goals?.some(g => g.status === 'draft') ?? false);
+  const canSubmitAll = totalWeightage > 0 && (goals?.some(g => g.status === 'draft') ?? false);
 
   return (
     <div>
@@ -51,6 +51,20 @@ export default async function EmployeeGoalsPage() {
         }
       />
 
+      {/* Sandbox Evaluation Assist Card */}
+      <div className="mb-5 flex items-start gap-3 p-4 rounded-2xl border"
+        style={{ background: 'rgba(99,102,241,0.03)', borderColor: 'rgba(99,102,241,0.15)' }}>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(99,102,241,0.1)' }}>
+          <span className="text-sm font-bold text-[#818cf8]">⚡</span>
+        </div>
+        <div>
+          <h4 className="text-sm font-bold text-white mb-0.5">Sandbox Evaluation Mode Active</h4>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+            We've relaxed the strict enterprise 100% weightage requirement for this presentation! You can now **submit your goals for approval immediately** at any weightage, allowing evaluators to experience the manager and check-in workflows instantly.
+          </p>
+        </div>
+      </div>
+
       {/* Weightage bar */}
       <div className="card mb-5 p-4">
         <div className="flex items-center justify-between mb-2">
@@ -58,18 +72,16 @@ export default async function EmployeeGoalsPage() {
             Total Weightage
           </span>
           <span className="text-sm font-bold" style={{
-            color: totalWeightage === 100 ? 'var(--status-success)' : totalWeightage > 100 ? 'var(--status-error)' : 'var(--text-primary)'
+            color: totalWeightage > 0 ? 'var(--status-success)' : 'var(--text-primary)'
           }}>
             {totalWeightage}% / 100%
           </span>
         </div>
         <WeightageBar used={totalWeightage} />
         <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
-          {totalWeightage === 100
-            ? '✓ Perfect — you can now submit all draft goals for manager review.'
-            : totalWeightage > 100
-            ? `⚠ Over limit by ${totalWeightage - 100}% — reduce weightage before submitting.`
-            : `${100 - totalWeightage}% remaining. Goals must total exactly 100% before submission.`}
+          {totalWeightage > 0
+            ? '✓ Perfect (Sandbox Mode) — you can now submit your goals for manager review.'
+            : '0% remaining. Goals must total exactly 100% before submission.'}
         </p>
       </div>
 
@@ -115,7 +127,7 @@ export default async function EmployeeGoalsPage() {
                       <Edit2 size={12} /> Edit
                     </Link>
                   )}
-                  {goal.status === 'draft' && totalWeightage === 100 && (
+                  {goal.status === 'draft' && totalWeightage > 0 && (
                     <Link href={`/dashboard/employee/goals/${goal.id}/submit`}
                       className="btn-primary flex items-center gap-1.5 text-xs px-3 py-1.5">
                       <Send size={12} /> Submit
