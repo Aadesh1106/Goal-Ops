@@ -336,8 +336,7 @@ export default function LoginPage() {
                   const mergedPersonas = [...defaultPersonas];
                   fetchedProfiles.forEach((p: any) => {
                     const emailLower = p.email.toLowerCase();
-                    const isCorporateEmail = emailLower.endsWith('@hpcl.com') || emailLower.endsWith('@google.com');
-                    if (isCorporateEmail && !mergedPersonas.some((item) => item.email.toLowerCase() === emailLower)) {
+                    if (!mergedPersonas.some((item) => item.email.toLowerCase() === emailLower)) {
                       const displayRole = p.role === 'admin' ? 'HR / Exception' : (p.role === 'manager' ? 'L1 Manager' : 'Employee');
                       mergedPersonas.push({
                         name: `${p.full_name} (${displayRole})`,
