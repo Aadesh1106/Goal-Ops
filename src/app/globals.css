@@ -43,6 +43,31 @@
     --shadow-glow: 0 0 40px rgba(99,102,241,0.15);
   }
 
+  .dashboard-layout {
+    /* Background layers */
+    --bg-base: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-elevated: #f1f5f9;
+    --bg-card: #ffffff;
+    --bg-hover: #f8fafc;
+    --bg-border: #e2e8f0;
+
+    /* Brand overrides */
+    --brand-primary: #4f46e5;
+    --brand-secondary: #7c3aed;
+    --brand-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+
+    /* Text */
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --text-disabled: #cbd5e1;
+
+    /* Shadow */
+    --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 8px -1px rgba(0, 0, 0, 0.03);
+    --shadow-glow: 0 10px 15px -3px rgba(99, 102, 241, 0.1), 0 4px 6px -4px rgba(99, 102, 241, 0.1);
+  }
+
   * {
     box-sizing: border-box;
     margin: 0;
@@ -104,7 +129,7 @@
 
   /* ─── KPI Card ─────────────────────────────────────── */
   .kpi-card {
-    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(26, 32, 53, 0.6) 100%);
+    background: var(--bg-card);
     border: 1px solid var(--bg-border);
     border-radius: 12px;
     padding: 1.25rem 1.5rem;
@@ -132,6 +157,16 @@
   /* ─── Sidebar ──────────────────────────────────────── */
   .sidebar {
     width: var(--sidebar-width);
+    /* Keep sidebar explicitly dark theme always */
+    --bg-elevated: rgba(255, 255, 255, 0.05);
+    --bg-border: rgba(255, 255, 255, 0.05);
+    --bg-hover: rgba(255, 255, 255, 0.06);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --sidebar-bg: #0b0f19;
+    --sidebar-border: rgba(255, 255, 255, 0.06);
+
     background: var(--sidebar-bg);
     border-right: 1px solid var(--sidebar-border);
     height: 100vh;
@@ -150,7 +185,7 @@
     gap: 10px;
     padding: 9px 14px;
     border-radius: 8px;
-    color: var(--text-secondary);
+    color: var(--text-secondary) !important;
     font-size: 13.5px;
     font-weight: 500;
     text-decoration: none;
@@ -159,14 +194,14 @@
   }
 
   .sidebar-nav-item:hover {
-    background: rgba(99, 102, 241, 0.08);
-    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: var(--text-primary) !important;
   }
 
   .sidebar-nav-item.active {
-    background: rgba(99, 102, 241, 0.15);
-    color: #818cf8;
-    border: 1px solid rgba(99, 102, 241, 0.15);
+    background: rgba(99, 102, 241, 0.15) !important;
+    color: #818cf8 !important;
+    border: 1px solid rgba(99, 102, 241, 0.15) !important;
   }
 
   /* ─── Button Variants ──────────────────────────────── */

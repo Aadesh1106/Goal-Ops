@@ -8,7 +8,7 @@ interface DashboardShellProps {
 
 export function DashboardShell({ children, sidebar, className }: DashboardShellProps) {
   return (
-    <div className="flex min-h-screen" style={{ background: 'var(--bg-base)' }}>
+    <div className="flex min-h-screen dashboard-layout" style={{ background: 'var(--bg-base)' }}>
       {sidebar}
       <main className={cn('page-content flex-1', className)}>
         {children}
