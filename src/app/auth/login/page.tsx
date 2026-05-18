@@ -286,80 +286,109 @@ export default function LoginPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}>
           <div className="w-full max-w-md rounded-2xl p-6 border animate-in fade-in zoom-in-95 duration-200" style={{ background: '#12131a', borderColor: 'var(--bg-border)' }}>
             
-            <div className="flex flex-col">
-              {/* Modal Header */}
-              <div className="flex items-center gap-3 mb-4">
-                <svg className="w-6 h-6 shrink-0" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M0 0H11V11H0V0Z" fill="#F25022"/>
-                  <path d="M12 0H23V11H12V0Z" fill="#7FBA00"/>
-                  <path d="M0 12H11V23H0V12Z" fill="#00A4EF"/>
-                  <path d="M12 12H23V23H12V12Z" fill="#FFB900"/>
-                </svg>
-                <h2 className="font-bold text-base text-white">Microsoft Entra ID (SSO) Simulator</h2>
-              </div>
-              
-              <p className="text-xs mb-5" style={{ color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-                Select an enterprise persona below to simulate a secure, pre-mapped **Microsoft Single Sign-On (SSO)** identity claim and log in instantly:
-              </p>
-              
-              {/* Persona Grid */}
-              <div className="flex flex-col gap-2.5 mb-6 max-h-[320px] overflow-y-auto pr-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] uppercase font-bold tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                    Select simulated enterprise identity:
-                  </span>
-                  {isLoadingProfiles && (
-                    <span className="text-[10px] animate-pulse" style={{ color: '#818cf8' }}>Syncing directory...</span>
-                  )}
+            {isSsoLoggingIn ? (
+              <div className="flex flex-col items-center justify-center py-10 text-center animate-in fade-in zoom-in-95 duration-200">
+                <div className="relative w-16 h-16 mb-6">
+                  {/* Outer spinning ring */}
+                  <div className="absolute inset-0 rounded-full border-4 border-indigo-500/20"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-t-indigo-500 border-r-indigo-500 border-transparent animate-spin"></div>
+                  {/* Central glowing icon */}
+                  <div className="absolute inset-3 flex items-center justify-center bg-[#171923] rounded-full border border-indigo-500/30">
+                    <svg className="w-5 h-5 animate-pulse" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M0 0H11V11H0V0Z" fill="#F25022"/>
+                      <path d="M12 0H23V11H12V0Z" fill="#7FBA00"/>
+                      <path d="M0 12H11V23H0V12Z" fill="#00A4EF"/>
+                      <path d="M12 12H23V23H12V12Z" fill="#FFB900"/>
+                    </svg>
+                  </div>
                 </div>
                 
-                {(() => {
-                  const defaultPersonas = [
-                    { name: 'Arjun Engineer (Employee)', email: 'employee@hpcl.com', desc: 'HPCL Technical Stream' },
-                    { name: 'google (Employee)', email: 'google@google.com', desc: 'Google Federated Identity' },
-                    { name: 'Sarah Manager (L1 Manager)', email: 'manager@hpcl.com', desc: 'Approvals & Team Check-ins' },
-                    { name: 'Boss Admin (HR / Exception)', email: 'admin@hpcl.com', desc: 'Audit Logs & Escalation Center' }
-                  ];
-
-                  const mergedPersonas = [...defaultPersonas];
-                  fetchedProfiles.forEach((p: any) => {
-                    const emailLower = p.email.toLowerCase();
-                    if (!mergedPersonas.some((item) => item.email.toLowerCase() === emailLower)) {
-                      const displayRole = p.role === 'admin' ? 'HR / Exception' : (p.role === 'manager' ? 'L1 Manager' : 'Employee');
-                      mergedPersonas.push({
-                        name: `${p.full_name} (${displayRole})`,
-                        email: p.email,
-                        desc: p.designation || p.department || `${displayRole} Account`
-                      });
-                    }
-                  });
-
-                  return mergedPersonas.map((persona) => (
-                    <button
-                      key={persona.email}
-                      disabled={isSsoLoggingIn}
-                      onClick={() => handleSimulatedLogin(persona.email)}
-                      className="w-full flex flex-col items-start p-3 rounded-xl border text-left transition-all hover:bg-white/5 active:scale-[0.98] disabled:opacity-50"
-                      style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--bg-border)', cursor: 'pointer' }}
-                    >
-                      <span className="text-xs font-semibold text-white">{persona.name}</span>
-                      <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{persona.email} · {persona.desc}</span>
-                    </button>
-                  ));
-                })()}
+                <h3 className="font-bold text-base text-white mb-1.5">Authenticating Identity</h3>
+                <div className="flex items-center gap-1.5 text-xs text-indigo-400 font-mono mb-4 animate-pulse">
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping"></span>
+                  <span>Generating Entra ID Token Claim...</span>
+                </div>
+                
+                <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
+                  Secure single sign-on is verifying your credentials and establishing your active workspace session. Redirecting you to the dashboard...
+                </p>
               </div>
+            ) : (
+              <div className="flex flex-col">
+                {/* Modal Header */}
+                <div className="flex items-center gap-3 mb-4">
+                  <svg className="w-6 h-6 shrink-0" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 0H11V11H0V0Z" fill="#F25022"/>
+                    <path d="M12 0H23V11H12V0Z" fill="#7FBA00"/>
+                    <path d="M0 12H11V23H0V12Z" fill="#00A4EF"/>
+                    <path d="M12 12H23V23H12V12Z" fill="#FFB900"/>
+                  </svg>
+                  <h2 className="font-bold text-base text-white">Microsoft Entra ID (SSO) Simulator</h2>
+                </div>
+                
+                <p className="text-xs mb-5" style={{ color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                  Select an enterprise persona below to simulate a secure, pre-mapped **Microsoft Single Sign-On (SSO)** identity claim and log in instantly:
+                </p>
+                
+                {/* Persona Grid */}
+                <div className="flex flex-col gap-2.5 mb-6 max-h-[320px] overflow-y-auto pr-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] uppercase font-bold tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                      Select simulated enterprise identity:
+                    </span>
+                    {isLoadingProfiles && (
+                      <span className="text-[10px] animate-pulse" style={{ color: '#818cf8' }}>Syncing directory...</span>
+                    )}
+                  </div>
+                  
+                  {(() => {
+                    const defaultPersonas = [
+                      { name: 'Arjun Engineer (Employee)', email: 'employee@hpcl.com', desc: 'HPCL Technical Stream' },
+                      { name: 'google (Employee)', email: 'google@google.com', desc: 'Google Federated Identity' },
+                      { name: 'Sarah Manager (L1 Manager)', email: 'manager@hpcl.com', desc: 'Approvals & Team Check-ins' },
+                      { name: 'Boss Admin (HR / Exception)', email: 'admin@hpcl.com', desc: 'Audit Logs & Escalation Center' }
+                    ];
 
-              <div className="flex justify-end pt-3 border-t" style={{ borderColor: 'var(--bg-border)' }}>
-                <button
-                  disabled={isSsoLoggingIn}
-                  onClick={() => setShowSsoModal(false)}
-                  className="px-4 py-1.5 rounded-lg text-xs font-semibold"
-                  style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-primary)', cursor: 'pointer' }}
-                >
-                  Close
-                </button>
+                    const mergedPersonas = [...defaultPersonas];
+                    fetchedProfiles.forEach((p: any) => {
+                      const emailLower = p.email.toLowerCase();
+                      if (!mergedPersonas.some((item) => item.email.toLowerCase() === emailLower)) {
+                        const displayRole = p.role === 'admin' ? 'HR / Exception' : (p.role === 'manager' ? 'L1 Manager' : 'Employee');
+                        mergedPersonas.push({
+                          name: `${p.full_name} (${displayRole})`,
+                          email: p.email,
+                          desc: p.designation || p.department || `${displayRole} Account`
+                        });
+                      }
+                    });
+
+                    return mergedPersonas.map((persona) => (
+                      <button
+                        key={persona.email}
+                        disabled={isSsoLoggingIn}
+                        onClick={() => handleSimulatedLogin(persona.email)}
+                        className="w-full flex flex-col items-start p-3 rounded-xl border text-left transition-all hover:bg-white/5 active:scale-[0.98] disabled:opacity-50"
+                        style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--bg-border)', cursor: 'pointer' }}
+                      >
+                        <span className="text-xs font-semibold text-white">{persona.name}</span>
+                        <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{persona.email} · {persona.desc}</span>
+                      </button>
+                    ));
+                  })()}
+                </div>
+
+                <div className="flex justify-end pt-3 border-t" style={{ borderColor: 'var(--bg-border)' }}>
+                  <button
+                    disabled={isSsoLoggingIn}
+                    onClick={() => setShowSsoModal(false)}
+                    className="px-4 py-1.5 rounded-lg text-xs font-semibold"
+                    style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-primary)', cursor: 'pointer' }}
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
           </div>
         </div>
