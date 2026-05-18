@@ -180,7 +180,7 @@ Judges can explore the complete application flow using these pre-configured or d
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Rohan Tester** | `rohan@hpcl.com` | `password123` | 2 Goals | **100%** | **Locked Sheet**: Fully approved goals. Ideal for testing quarterly progress check-ins. |
 | **Rohan Test New** | `rohan_test_new@hpcl.com` | `password123` | 3 Goals | **100%** | **Submitted Sheet**: Awaiting manager approval. Test L1 Manager rejection/approval flows. |
-| **Arun** | `arun@hpcl.com` | `password123` | 6 Goals | **100%%** | **Invalid Draft**:  100% weightage limit. |
+| **Arun** | `arun@hpcl.com` | `password123` | 6 Goals | **100%** | ** Draft**:  100% weightage limit. |
 | **Arjun Engineer** | `employee@hpcl.com` | `password123` | 6 Goals | **90%** | ** Draft**: Needs exactly 10% more weightage. |
 | **google** | `google@google.com` | `password123` | 6 Goals | **90%** | **Incomplete Draft**: Needs exactly 10% more weightage. |
 | **Alice Employee** | `alice.employee.test@gmail.com` | `password123` | 3 Goals | **86%** | **Incomplete Draft**: Needs exactly 14% more weightage. |
