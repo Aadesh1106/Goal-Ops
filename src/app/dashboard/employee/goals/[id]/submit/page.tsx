@@ -15,11 +15,11 @@ async function submitGoal(goalId: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/auth/login');
 
-  // Verify total weightage does not exceed 100 before submitting
+  // Verify total weightage is exactly 100 before submitting
   const { data: allGoals } = await supabase
     .from('goals').select('weightage, id, status').eq('employee_id', user.id);
   const total = allGoals?.filter((g) => g.status !== 'rejected').reduce((s, g) => s + g.weightage, 0) ?? 0;
-  if (total > 100) return;
+  if (total !== 100) return;
 
   // Update the goal status to submitted
   const { error: updateErr } = await supabase
@@ -70,7 +70,7 @@ export default async function SubmitGoalPage({ params }: { params: Promise<{ id:
 
   const { data: allGoals } = await supabase.from('goals').select('weightage, status').eq('employee_id', user.id);
   const totalWeightage = allGoals?.filter((g) => g.status !== 'rejected').reduce((s, g) => s + g.weightage, 0) ?? 0;
-  const canSubmit = totalWeightage <= 100;
+  const canSubmit = totalWeightage === 100;
 
   const handleSubmit = submitGoal.bind(null, id);
 
@@ -108,7 +108,7 @@ export default async function SubmitGoalPage({ params }: { params: Promise<{ id:
               <div className="text-xs" style={{ color: 'var(--text-muted)' }}>weightage</div>
             </div>
             <div className="text-center p-2 rounded-lg" style={{ background: 'var(--bg-elevated)' }}>
-              <div className="font-bold" style={{ color: totalWeightage <= 100 ? 'var(--status-success)' : 'var(--status-error)' }}>
+              <div className="font-bold" style={{ color: totalWeightage === 100 ? 'var(--status-success)' : 'var(--status-error)' }}>
                 {totalWeightage}%
               </div>
               <div className="text-xs" style={{ color: 'var(--text-muted)' }}>total weight</div>
@@ -121,8 +121,7 @@ export default async function SubmitGoalPage({ params }: { params: Promise<{ id:
             style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}>
             <AlertCircle size={16} className="mt-0.5 shrink-0" />
             <div className="text-sm">
-              Total weightage is <strong>{totalWeightage}%</strong> — cannot exceed 100% before submitting.
-              Please adjust your goals first.
+              Total goal weightage is currently <strong>{totalWeightage}%</strong>. Goals must total <strong>exactly 100%</strong> before submission. Please adjust your goals first (you currently need {100 - totalWeightage}% more).
             </div>
           </div>
         )}
