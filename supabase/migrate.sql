@@ -400,5 +400,32 @@ BEGIN
   END IF;
 END $$;
 
+-- ==========================================
+-- 10. Auto-Fix Existing Employee-Manager Assignments
+-- ==========================================
+-- This fixes the issue where employees from Engineering/Finance were incorrectly assigned to a General manager during registration.
+DO $$
+DECLARE
+  emp RECORD;
+  mgr_id UUID;
+BEGIN
+  FOR emp IN SELECT id, department FROM public.profiles WHERE role = 'employee'
+  LOOP
+    -- Try to find a manager in the exact same department
+    SELECT id INTO mgr_id FROM public.profiles 
+    WHERE role = 'manager' AND department = emp.department 
+    ORDER BY created_at ASC
+    LIMIT 1;
+
+    IF FOUND THEN
+      -- 1. Reassign the employee to the correct manager
+      UPDATE public.profiles SET manager_id = mgr_id WHERE id = emp.id;
+      
+      -- 2. Migrate any pending approval requests to the correct manager
+      UPDATE public.approvals SET manager_id = mgr_id WHERE employee_id = emp.id;
+    END IF;
+  END LOOP;
+END $$;
+
 -- Commit transaction
 COMMIT;

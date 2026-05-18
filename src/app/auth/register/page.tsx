@@ -42,8 +42,18 @@ export default function RegisterPage() {
       // Auto-assign mock hierarchy so hackathon demo works seamlessly for new accounts
       let assignedManager = null;
       if (values.role === 'employee') {
-        const { data: m } = await supabase.from('profiles').select('id').eq('role', 'manager').limit(1).single();
-        if (m) assignedManager = m.id;
+        // Try to find a manager in the SAME department
+        const { data: mDept } = await supabase.from('profiles').select('id')
+          .eq('role', 'manager').eq('department', values.department).limit(1).single();
+        
+        if (mDept) {
+          assignedManager = mDept.id;
+        } else {
+          // Fallback to any manager
+          const { data: mAny } = await supabase.from('profiles').select('id')
+            .eq('role', 'manager').limit(1).single();
+          if (mAny) assignedManager = mAny.id;
+        }
       } else if (values.role === 'manager') {
         const { data: a } = await supabase.from('profiles').select('id').eq('role', 'admin').limit(1).single();
         if (a) assignedManager = a.id;
