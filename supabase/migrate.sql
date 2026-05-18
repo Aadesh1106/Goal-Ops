@@ -257,7 +257,24 @@ CREATE TABLE IF NOT EXISTS app_settings (
   key TEXT PRIMARY KEY,
   value JSONB NOT NULL
 );
-ALTER TABLE public.app_settings DISABLE ROW LEVEL SECURITY;
+
+-- Enable RLS and establish enterprise security policies (resolves Supabase critical security warnings)
+ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public select on app_settings" ON public.app_settings;
+CREATE POLICY "Allow public select on app_settings" 
+  ON public.app_settings FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow admin to manage app_settings" ON public.app_settings;
+CREATE POLICY "Allow admin to manage app_settings" 
+  ON public.app_settings FOR ALL TO authenticated 
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
 GRANT ALL ON TABLE public.app_settings TO postgres, service_role, authenticated, anon;
 
 INSERT INTO app_settings (key, value) 
