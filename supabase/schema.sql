@@ -130,29 +130,12 @@ BEGIN
 
   -- Lock mechanism: Prevent modifications on approved or locked goals
   IF OLD.status IN ('approved', 'locked') THEN
-    -- Scenario A: Goal status remains approved/locked (internal modification attempt)
-    IF NEW.status IN ('approved', 'locked') THEN
-      -- Exception: Recipients of shared goals can adjust weightage only
-      IF OLD.title LIKE '[Shared]%' THEN
-        IF NEW.title != OLD.title OR NEW.target_value != OLD.target_value OR NEW.description != OLD.description OR NEW.thrust_area != OLD.thrust_area OR NEW.uom_type != OLD.uom_type THEN
-          RAISE EXCEPTION 'Cannot modify title or targets of a shared goal. Only weightage is adjustable.';
-        END IF;
-      ELSE
-        -- Normal goals: Block any modification attempt
-        IF NEW.title != OLD.title OR NEW.weightage != OLD.weightage OR NEW.target_value != OLD.target_value OR NEW.description != OLD.description OR NEW.thrust_area != OLD.thrust_area OR NEW.uom_type != OLD.uom_type THEN
-          RAISE EXCEPTION 'Cannot modify an approved or locked goal without Administrator intervention.';
-        END IF;
-      END IF;
-    
-    -- Scenario B: Attempt to change goal status out of approved/locked (unlock bypass attempt)
-    -- Allow transitions ONLY if the actor is an Administrator
-    ELSE
-      IF NOT EXISTS (
-        SELECT 1 FROM public.profiles 
-        WHERE id = auth.uid() AND role = 'admin'
-      ) THEN
-        RAISE EXCEPTION 'Goal is locked. Only platform Administrators are authorized to unlock approved or locked goals.';
-      END IF;
+    -- Block any modification or transition unless the actor is an Administrator
+    IF NOT EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    ) THEN
+      RAISE EXCEPTION 'Goal is locked. Only platform Administrators are authorized to edit or unlock approved or locked goals.';
     END IF;
   END IF;
 

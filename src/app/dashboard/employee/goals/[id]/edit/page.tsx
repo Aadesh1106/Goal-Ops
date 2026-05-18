@@ -28,7 +28,7 @@ export default function EditGoalPage() {
     formState: { errors, isSubmitting },
   } = useForm<CreateGoalFormValues>({ resolver: zodResolver(createGoalSchema) });
 
-  const isLocked = (goalStatus === 'approved' || goalStatus === 'locked') && !isShared;
+  const isLocked = goalStatus === 'approved' || goalStatus === 'locked';
 
   useEffect(() => {
     const fetchGoal = async () => {
