@@ -44,13 +44,13 @@
   }
 
   .dashboard-layout {
-    /* Background layers - Cohesive premium Slate (No Stark White) */
-    --bg-base: #e2e8f0;      /* Beautiful cool mid-slate gray */
-    --bg-surface: #f1f5f9;   /* Soft pale slate surface */
-    --bg-elevated: #cbd5e1;  /* Slate element background */
-    --bg-card: #f1f5f9;      /* Gorgeous soft non-white slate card */
-    --bg-hover: #e2e8f0;     /* Slate hover state */
-    --bg-border: #cbd5e1;    /* Sleek slate border */
+    /* Background layers - Atomberg-inspired Premium Ice-Blue theme */
+    --bg-base: #e9edf5;      /* Soothing soft ice-blue */
+    --bg-surface: #f1f5fa;   /* Softer surface */
+    --bg-elevated: #dbe4f0;  /* Cool elements */
+    --bg-card: #ffffff;      /* Pure white card container */
+    --bg-hover: #e9edf5;     /* Hover state */
+    --bg-border: #d5dfeb;    /* Premium soft ice-blue border */
 
     /* Brand overrides - Indigo + Teal */
     --brand-primary: #4f46e5;

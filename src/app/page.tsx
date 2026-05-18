@@ -3,14 +3,14 @@ import { APP_NAME, APP_TAGLINE } from '@/lib/constants';
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: '#e2e8f0' }}>
+    <main className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #e5ecf6 0%, #f0f4fa 100%)' }}>
       
       {/* Soft Elegant Floating Gradient Orbs in background */}
       <div className="absolute top-20 left-1/4 w-96 h-96 bg-indigo-500/5 rounded-full filter blur-[100px] pointer-events-none animate-pulse"></div>
       <div className="absolute top-80 right-1/4 w-96 h-96 bg-teal-500/5 rounded-full filter blur-[100px] pointer-events-none animate-pulse" style={{ animationDelay: '2s' }}></div>
 
       {/* Nav */}
-      <nav className="flex items-center justify-between px-8 py-5 relative z-10" style={{ borderBottom: '1px solid #e2e8f0' }}>
+      <nav className="flex items-center justify-between px-8 py-5 relative z-10" style={{ borderBottom: '1px solid #d5dfeb' }}>
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold"
             style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #0d9488 100%)' }}>
