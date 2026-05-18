@@ -208,9 +208,6 @@ Judges can explore the complete application flow using these pre-configured or d
 * **Sarah Manager (General Dept):** `manager@hpcl.com` | `password123`
 * **Bob Manager (Engineering Dept):** `bob.manager.test@gmail.com` | `password123`
 * **Bob Manager Two (Engineering Dept):** `bob.manager.test2@gmail.com` | `password123`
-* **Product Manager (Product Dept):** `product.manager@hpcl.com` | `password123`
-* **Finance Manager (Finance Dept):** `finance.manager@hpcl.com` | `password123`
-* **Tech Manager (Technology Dept):** `tech.manager@hpcl.com` | `password123`
 
 > ⚙️ **Dynamic Hierarchy:** When a new employee registers or logs in via SSO, GoalOps automatically routes them to the correct manager within their designated department (e.g., Engineering employees like Rohan are assigned to Bob Manager).
 
