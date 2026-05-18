@@ -39,14 +39,15 @@ export default async function CheckinDetailPage({ params }: { params: Promise<{ 
 
   if (!checkin) redirect('/dashboard/manager/checkins');
 
-  // ✅ BUG-004 Fix: Verify this employee belongs to the manager's team
-  const { data: teamMember } = await supabase
+  // Verify logged-in user is a manager or admin
+  const { data: currentUser } = await supabase
     .from('profiles')
-    .select('id')
-    .eq('id', checkin.employee_id)
-    .eq('manager_id', user.id)
+    .select('role')
+    .eq('id', user.id)
     .single();
-  if (!teamMember) redirect('/dashboard/manager/checkins');
+  if (currentUser?.role !== 'manager' && currentUser?.role !== 'admin') {
+    redirect('/dashboard/manager/checkins');
+  }
 
   const goal = checkin.goals as any;
   const employee = checkin.profiles as any;

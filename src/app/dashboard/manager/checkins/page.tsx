@@ -13,7 +13,7 @@ export default async function ManagerCheckinsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/auth/login');
 
-  const { data: team } = await supabase.from('profiles').select('id').eq('manager_id', user.id);
+  const { data: team } = await supabase.from('profiles').select('id').eq('role', 'employee');
   const teamIds = team?.map(t => t.id) ?? [];
 
   const { data: checkins } = await supabase

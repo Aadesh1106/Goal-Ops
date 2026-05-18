@@ -16,7 +16,6 @@ export default async function ApprovalsPage() {
   const { data: approvals } = await supabase
     .from('approvals')
     .select('*, goals(title, weightage, thrust_area, description), profiles!approvals_employee_id_fkey(full_name, department)')
-    .eq('manager_id', user.id)
     .order('created_at', { ascending: false });
 
   const pending = approvals?.filter(a => a.status === 'pending') ?? [];

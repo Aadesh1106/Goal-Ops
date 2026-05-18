@@ -452,5 +452,78 @@ BEGIN
   END IF;
 END $$;
 
+-- ==========================================
+-- 12. Recreate RLS Policies for Global Manager Access
+-- ==========================================
+DO $$
+BEGIN
+  -- Drop old restrictive manager policies
+  DROP POLICY IF EXISTS "goals: manager reads team goals" ON public.goals;
+  DROP POLICY IF EXISTS "goals: manager updates for approval" ON public.goals;
+  DROP POLICY IF EXISTS "goals: manager inserts team goals" ON public.goals;
+  DROP POLICY IF EXISTS "checkins: manager reads team" ON public.quarterly_checkins;
+  DROP POLICY IF EXISTS "checkins: manager updates remarks" ON public.quarterly_checkins;
+  DROP POLICY IF EXISTS "approvals: manager reads own" ON public.approvals;
+  DROP POLICY IF EXISTS "approvals: manager updates own" ON public.approvals;
+
+  -- Recreate global manager policies (allowing any manager to see/manage all employees)
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'goals' AND policyname = 'goals: manager reads all goals'
+  ) THEN
+    CREATE POLICY "goals: manager reads all goals"
+      ON public.goals FOR SELECT
+      USING (current_user_role() = 'manager');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'goals' AND policyname = 'goals: manager updates all submitted goals'
+  ) THEN
+    CREATE POLICY "goals: manager updates all submitted goals"
+      ON public.goals FOR UPDATE
+      USING (current_user_role() = 'manager' AND status = 'submitted');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'goals' AND policyname = 'goals: manager inserts any goals'
+  ) THEN
+    CREATE POLICY "goals: manager inserts any goals"
+      ON public.goals FOR INSERT
+      WITH CHECK (current_user_role() = 'manager');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'quarterly_checkins' AND policyname = 'checkins: manager reads all'
+  ) THEN
+    CREATE POLICY "checkins: manager reads all"
+      ON public.quarterly_checkins FOR SELECT
+      USING (current_user_role() = 'manager');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'quarterly_checkins' AND policyname = 'checkins: manager updates all remarks'
+  ) THEN
+    CREATE POLICY "checkins: manager updates all remarks"
+      ON public.quarterly_checkins FOR UPDATE
+      USING (current_user_role() = 'manager');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'approvals' AND policyname = 'approvals: manager reads all'
+  ) THEN
+    CREATE POLICY "approvals: manager reads all"
+      ON public.approvals FOR SELECT
+      USING (current_user_role() = 'manager');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'approvals' AND policyname = 'approvals: manager updates all'
+  ) THEN
+    CREATE POLICY "approvals: manager updates all"
+      ON public.approvals FOR UPDATE
+      USING (current_user_role() = 'manager');
+  END IF;
+
+END $$;
+
 -- Commit transaction
 COMMIT;

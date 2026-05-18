@@ -106,11 +106,20 @@ export default async function ApprovalDetailPage({ params }: { params: Promise<{
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/auth/login');
 
+  // Verify current user is a manager or admin
+  const { data: currentUser } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+  if (currentUser?.role !== 'manager' && currentUser?.role !== 'admin') {
+    redirect('/dashboard/manager/approvals');
+  }
+
   const { data: approval } = await supabase
     .from('approvals')
     .select('*, goals(*), profiles!approvals_employee_id_fkey(full_name, department, designation, employee_code)')
     .eq('id', id)
-    .eq('manager_id', user.id)
     .single();
 
   if (!approval) redirect('/dashboard/manager/approvals');

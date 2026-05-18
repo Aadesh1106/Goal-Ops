@@ -40,7 +40,7 @@ async function pushSharedGoal(formData: FormData) {
   }
 
   // 2. Fetch all team members
-  const { data: team } = await supabase.from('profiles').select('id').eq('manager_id', user.id);
+  const { data: team } = await supabase.from('profiles').select('id').eq('role', 'employee');
   if (!team || team.length === 0) return;
 
   // 3. Link this goal to all team members (respecting 8-goal maximum per BRD)
@@ -87,7 +87,7 @@ export default async function ManagerDashboardPage() {
   const { data: team } = await supabase
     .from('profiles')
     .select('id, full_name, department, designation')
-    .eq('manager_id', user.id);
+    .eq('role', 'employee');
 
   const teamIds = team?.map(t => t.id) ?? [];
 
@@ -95,7 +95,6 @@ export default async function ManagerDashboardPage() {
   const { data: pendingApprovals } = await supabase
     .from('approvals')
     .select('*, goals(title, weightage, thrust_area, employee_id), profiles!approvals_employee_id_fkey(full_name)')
-    .eq('manager_id', user.id)
     .eq('status', 'pending')
     .order('created_at', { ascending: true });
 
