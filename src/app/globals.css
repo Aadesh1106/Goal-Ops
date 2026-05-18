@@ -44,13 +44,13 @@
   }
 
   .dashboard-layout {
-    /* Background layers - Premium Slate theme */
-    --bg-base: #f1f5f9;
-    --bg-surface: #f8fafc;
-    --bg-elevated: #e2e8f0;
-    --bg-card: #ffffff;
-    --bg-hover: #f1f5f9;
-    --bg-border: #cbd5e1;
+    /* Background layers - Cohesive premium Slate (No Stark White) */
+    --bg-base: #e2e8f0;      /* Beautiful cool mid-slate gray */
+    --bg-surface: #f1f5f9;   /* Soft pale slate surface */
+    --bg-elevated: #cbd5e1;  /* Slate element background */
+    --bg-card: #f1f5f9;      /* Gorgeous soft non-white slate card */
+    --bg-hover: #e2e8f0;     /* Slate hover state */
+    --bg-border: #cbd5e1;    /* Sleek slate border */
 
     /* Brand overrides - Indigo + Teal */
     --brand-primary: #4f46e5;

@@ -3,7 +3,7 @@ import { APP_NAME, APP_TAGLINE } from '@/lib/constants';
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: '#f8fafc' }}>
+    <main className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: '#e2e8f0' }}>
       
       {/* Soft Elegant Floating Gradient Orbs in background */}
       <div className="absolute top-20 left-1/4 w-96 h-96 bg-indigo-500/5 rounded-full filter blur-[100px] pointer-events-none animate-pulse"></div>
