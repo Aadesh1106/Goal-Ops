@@ -20,6 +20,7 @@ export default function EditGoalPage() {
   const [loading, setLoading] = useState(true);
   const [isShared, setIsShared] = useState(false);
   const [goalStatus, setGoalStatus] = useState<string | null>(null);
+  const [remainingWeight, setRemainingWeight] = useState<number>(100);
 
   const {
     register,
@@ -45,6 +46,19 @@ export default function EditGoalPage() {
           target_value: data.target_value,
           weightage: data.weightage,
         });
+
+        // Fetch other goals to compute available weight space (excluding this one)
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: existingGoals } = await supabase
+            .from('goals')
+            .select('id, weightage, status')
+            .eq('employee_id', user.id);
+          const otherTotal = existingGoals
+            ?.filter(g => g.id !== goalId && g.status !== 'rejected')
+            ?.reduce((s, g) => s + g.weightage, 0) ?? 0;
+          setRemainingWeight(Math.max(0, 100 - otherTotal));
+        }
       }
       setLoading(false);
     };
@@ -61,18 +75,22 @@ export default function EditGoalPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push('/auth/login'); return; }
 
-    // Fetch existing goals to check total weightage, excluding the current goal
-    const { data: existingGoals } = await supabase
-      .from('goals')
-      .select('id, weightage, status')
-      .eq('employee_id', user.id);
+    const S = remainingWeight;
+    const W = values.weightage;
 
-    const otherGoalsTotal = existingGoals
-      ?.filter(g => g.id !== goalId && g.status !== 'rejected')
-      ?.reduce((s, g) => s + g.weightage, 0) ?? 0;
+    if (W < 10) {
+      setServerError("Each goal must have at least 10% weightage.");
+      return;
+    }
 
-    if (otherGoalsTotal + values.weightage > 100) {
-      setServerError(`Cannot update goal. Changing this goal's weightage to ${values.weightage}% would make the total weightage ${otherGoalsTotal + values.weightage}%, which strictly exceeds the 100% limit. (Total weightage of other goals is ${otherGoalsTotal}%).`);
+    if (W > S) {
+      setServerError(`You only have ${S}% remaining available.`);
+      return;
+    }
+
+    const remainder = S - W;
+    if (remainder > 0 && remainder < 10) {
+      setServerError(`Cannot assign ${W}% because remaining goals require minimum 10% allocation.`);
       return;
     }
 
@@ -170,9 +188,25 @@ export default function EditGoalPage() {
           </div>
 
           <div>
-            <label className="form-label" htmlFor="edit-weight" style={isLocked ? { opacity: 0.7 } : undefined}>Weightage (%) <span className="font-normal" style={{ color: 'var(--text-muted)' }}>10 – 100%</span></label>
-            <input id="edit-weight" type="number" min={10} max={100} className="form-input" readOnly={isLocked} style={isLocked ? { backgroundColor: 'var(--bg-elevated)', opacity: 0.7, cursor: 'not-allowed', pointerEvents: 'none' } : undefined}
-              {...register('weightage', { valueAsNumber: true })} />
+            <label className="form-label" htmlFor="edit-weight" style={isLocked ? { opacity: 0.7 } : undefined}>
+              Weightage (%) <span className="font-normal" style={{ color: 'var(--text-muted)' }}>
+                {remainingWeight < 10
+                  ? `⛔ Deadlock state: Only ${remainingWeight}% remains. Edit other goals to free up space (min 10% per goal).`
+                  : remainingWeight === 100
+                  ? `10% – 100% available (no other goals yet)`
+                  : `Available: 10% – ${remainingWeight}%. Leaving <10% unused is not allowed.`}
+              </span>
+            </label>
+            <input 
+              id="edit-weight" 
+              type="number" 
+              min={10} 
+              max={100} 
+              className="form-input" 
+              readOnly={isLocked} 
+              style={isLocked ? { backgroundColor: 'var(--bg-elevated)', opacity: 0.7, cursor: 'not-allowed', pointerEvents: 'none' } : undefined}
+              {...register('weightage', { valueAsNumber: true })} 
+            />
             {errors.weightage && <p className="mt-1 text-xs" style={{ color: 'var(--status-error)' }}>{errors.weightage.message}</p>}
           </div>
 

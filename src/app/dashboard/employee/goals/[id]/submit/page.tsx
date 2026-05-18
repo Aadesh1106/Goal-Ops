@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Send, ArrowLeft, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { notifyGoalSubmitted } from '@/lib/teams';
 
 export const metadata = { title: 'Submit Goal | GoalOps Enterprise' };
 
@@ -35,7 +36,7 @@ async function submitGoal(goalId: string) {
 
   // Find manager — first try profile.manager_id, then fallback to any manager
   const { data: profile } = await supabase
-    .from('profiles').select('manager_id, department').eq('id', user.id).single();
+    .from('profiles').select('full_name, employee_code, department, manager_id').eq('id', user.id).single();
   
   let managerId = profile?.manager_id;
   
@@ -52,6 +53,19 @@ async function submitGoal(goalId: string) {
       goal_id: goalId,
       manager_id: managerId,
       employee_id: user.id,
+    });
+  }
+
+  // Trigger Microsoft Teams notification
+  if (profile) {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    await notifyGoalSubmitted({
+      employeeName: profile.full_name || 'Anonymous Employee',
+      employeeCode: profile.employee_code || 'N/A',
+      department: profile.department || 'General',
+      goalCount: allGoals?.length || 0,
+      totalWeightage: total,
+      viewLink: `${appUrl}/dashboard/manager`
     });
   }
 

@@ -33,8 +33,11 @@ export default async function EmployeeGoalsPage() {
     .order('created_at', { ascending: false });
 
   const totalWeightage = goals?.filter((g) => g.status !== 'rejected').reduce((s, g) => s + g.weightage, 0) ?? 0;
-  const canAddMore = (goals?.length ?? 0) < 8;
-  const canSubmitAll = totalWeightage > 0 && (goals?.some(g => g.status === 'draft') ?? false);
+  const remainingSpace = 100 - totalWeightage;
+  // Can add more only if goal count < 8 and remaining space is at least 10%
+  const isDeadlocked = remainingSpace > 0 && remainingSpace < 10;
+  const canAddMore = (goals?.length ?? 0) < 8 && remainingSpace >= 10;
+  const canSubmitAll = totalWeightage === 100 && (goals?.some(g => g.status === 'draft') ?? false);
 
   return (
     <div>
@@ -70,10 +73,12 @@ export default async function EmployeeGoalsPage() {
         <WeightageBar used={totalWeightage} />
         <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
           {totalWeightage === 100
-            ? '✓ Perfect — you can now submit all draft goals for manager review.'
+            ? '✓ Perfect — all draft goals are ready for submission. Total weightage = 100%.'
             : totalWeightage > 100
             ? `⚠ Over limit by ${totalWeightage - 100}% — reduce weightage before submitting.`
-            : `${100 - totalWeightage}% remaining. Goals must total exactly 100% before submission.`}
+            : isDeadlocked
+            ? `⛔ Deadlock! Only ${remainingSpace}% remaining but minimum per-goal is 10%. Edit an existing goal to free up space before you can add more.`
+            : `Used: ${totalWeightage}% · Remaining: ${remainingSpace}%. Total must equal exactly 100% to enable submission.`}
         </p>
       </div>
 
@@ -119,7 +124,7 @@ export default async function EmployeeGoalsPage() {
                       <Edit2 size={12} /> Edit
                     </Link>
                   )}
-                  {goal.status === 'draft' && totalWeightage > 0 && (
+                  {goal.status === 'draft' && totalWeightage === 100 && (
                     <Link href={`/dashboard/employee/goals/${goal.id}/submit`}
                       className="btn-primary flex items-center gap-1.5 text-xs px-3 py-1.5">
                       <Send size={12} /> Submit

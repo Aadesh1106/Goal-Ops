@@ -9,14 +9,18 @@ import { createCheckinSchema, type CreateCheckinFormValues } from '@/lib/validat
 import { PageHeader } from '@/components/layout/DashboardShell';
 import { Card } from '@/components/ui/Card';
 import { QUARTERS } from '@/lib/constants';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Lock } from 'lucide-react';
 import Link from 'next/link';
+import { triggerTeamsCheckinNotification } from './actions';
+import { getCalendarWindow } from '@/lib/scheduler';
 
 export default function NewCheckinPage() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const [goals, setGoals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeWindow, setActiveWindow] = useState<string | null>(null);
+  const [windowLoading, setWindowLoading] = useState(true);
 
   const {
     register,
@@ -38,6 +42,18 @@ export default function NewCheckinPage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      // ✅ BUG-003 Fix: Fetch the active scheduler window (admin override or calendar)
+      const { data: settingsData } = await supabase
+        .from('app_settings')
+        .select('value')
+        .eq('key', 'window_override')
+        .single();
+
+      const overrideWindow = settingsData?.value?.active_window ?? null;
+      const calWindow = overrideWindow || (getCalendarWindow() as string | null);
+      setActiveWindow(calWindow);
+      setWindowLoading(false);
       
       const { data } = await supabase
         .from('goals')
@@ -78,12 +94,69 @@ export default function NewCheckinPage() {
       }
       return;
     }
+
+    // Trigger Teams notification
+    await triggerTeamsCheckinNotification({
+      goalId: values.goal_id,
+      quarter: values.quarter,
+      plannedValue: values.planned_value,
+      actualValue: values.actual_value,
+      progressStatus: values.progress_status
+    });
     
     router.push('/dashboard/employee/checkins');
     router.refresh();
   };
 
-  if (loading) return <div className="p-24 flex justify-center"><div className="spinner" /></div>;
+  if (loading || windowLoading) return <div className="p-24 flex justify-center"><div className="spinner" /></div>;
+
+  // ✅ BUG-003: Block check-ins outside of scheduled windows
+  const isCheckinWindow = activeWindow && ['Q1', 'Q2', 'Q3', 'Q4'].includes(activeWindow);
+  if (!isCheckinWindow) {
+    const WINDOW_LABELS: Record<string, string> = {
+      goal_setting: 'Goal Setting & Allocation (May)',
+      Q1: 'Q1 Check-in (July)',
+      Q2: 'Q2 Check-in (October)',
+      Q3: 'Q3 Check-in (January)',
+      Q4: 'Q4 Check-in (March/April)',
+    };
+    return (
+      <div>
+        <PageHeader
+          title="Log Quarterly Check-in"
+          subtitle="Check-in window status"
+          action={
+            <Link href="/dashboard/employee/checkins"
+              className="btn-secondary flex items-center gap-2 text-sm px-4 py-2">
+              <ArrowLeft size={14} /> Back
+            </Link>
+          }
+        />
+        <Card className="max-w-2xl">
+          <div className="flex flex-col items-center py-10 text-center gap-4">
+            <Lock size={32} style={{ color: 'var(--text-muted)' }} />
+            <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Check-in Window Closed</h3>
+            <p className="text-sm max-w-md" style={{ color: 'var(--text-muted)' }}>
+              Quarterly check-ins are only available during the scheduled windows:
+              <br />
+              <strong style={{ color: 'var(--text-secondary)' }}>Q1:</strong> July &nbsp;
+              <strong style={{ color: 'var(--text-secondary)' }}>Q2:</strong> October &nbsp;
+              <strong style={{ color: 'var(--text-secondary)' }}>Q3:</strong> January &nbsp;
+              <strong style={{ color: 'var(--text-secondary)' }}>Q4:</strong> March/April
+            </p>
+            {activeWindow && (
+              <div className="text-xs px-3 py-2 rounded-lg" style={{ background: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>
+                Current period: <strong style={{ color: 'var(--text-secondary)' }}>{WINDOW_LABELS[activeWindow] ?? activeWindow}</strong>
+              </div>
+            )}
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              Contact your Admin to override the window if needed.
+            </p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div>

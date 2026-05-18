@@ -7,7 +7,10 @@ import { Badge } from '@/components/ui/Badge';
 import { Target, CheckSquare, TrendingUp, Clock } from 'lucide-react';
 import { QuarterlyTrendChart } from '@/components/ui/Charts';
 
-export const metadata = { title: 'Employee Dashboard' };
+export const metadata = { 
+  title: 'My Dashboard | GoalOps Enterprise',
+  description: 'Track your goals, check-ins, and performance this cycle'
+};
 
 export default async function EmployeeDashboardPage() {
   const supabase = await createClient();
@@ -21,6 +24,7 @@ export default async function EmployeeDashboardPage() {
     .eq('employee_id', user.id);
 
   const totalGoals = goals?.length ?? 0;
+  const activeGoalCount = goals?.filter((g) => g.status !== 'rejected').length ?? 0;
   const approved = goals?.filter((g) => g.status === 'approved' || g.status === 'locked').length ?? 0;
   const submitted = goals?.filter((g) => g.status === 'submitted').length ?? 0;
   const totalWeightage = goals?.filter((g) => g.status !== 'rejected').reduce((s, g) => s + g.weightage, 0) ?? 0;
@@ -117,7 +121,7 @@ export default async function EmployeeDashboardPage() {
               </p>
             ) : (
               <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
-                You can add up to <strong style={{ color: 'var(--text-secondary)' }}>8 goals</strong> ({8 - totalGoals} remaining).
+                You can add up to <strong style={{ color: 'var(--text-secondary)' }}>8 goals</strong> ({8 - activeGoalCount} slots remaining).
                 All goals must total exactly <strong style={{ color: 'var(--text-secondary)' }}>100%</strong> before submission.
               </p>
             )}

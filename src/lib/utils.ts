@@ -34,9 +34,19 @@ export function validateWeightage(
     : weightages;
   const total = calculateTotalWeightage([...others, newWeight]);
 
-  if (newWeight < 10) return { valid: false, message: 'Minimum weightage is 10%' };
-  if (newWeight > 100) return { valid: false, message: 'Maximum weightage is 100%' };
-  if (total > 100) return { valid: false, message: `Total weightage exceeds 100% (current: ${total}%)` };
+  if (newWeight < 10) return { valid: false, message: 'Each goal must have at least 10% weightage.' };
+  if (newWeight > 100) return { valid: false, message: 'Maximum weightage is 100%.' };
+  if (total > 100) return { valid: false, message: `Total weightage exceeds 100% (current: ${total}%). Reduce this goal's weightage.` };
+
+  // ✅ BUG-008 Fix: Deadlock prevention — remaining must be 0 or >= 10
+  const remainder = 100 - total;
+  if (remainder > 0 && remainder < 10) {
+    return {
+      valid: false,
+      message: `Cannot assign ${newWeight}% — remaining ${remainder}% is less than the 10% minimum per goal. Adjust to leave 0% or at least 10% remaining.`
+    };
+  }
+
   return { valid: true };
 }
 

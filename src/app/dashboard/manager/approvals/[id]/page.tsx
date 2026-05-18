@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { notifyGoalStatusChanged } from '@/lib/teams';
 
 export const metadata = { title: 'Review Goal | GoalOps Enterprise' };
 
@@ -28,6 +29,30 @@ async function approveGoal(formData: FormData) {
 
   await supabase.from('goals').update(updateData).eq('id', goalId);
 
+  // Trigger Teams notification
+  try {
+    const { data: appData } = await supabase
+      .from('approvals')
+      .select('*, profiles!approvals_employee_id_fkey(full_name), manager:profiles!approvals_manager_id_fkey(full_name)')
+      .eq('id', approvalId)
+      .single();
+
+    if (appData) {
+      const employeeName = (appData.profiles as any)?.full_name || 'Employee';
+      const managerName = (appData.manager as any)?.full_name || 'Manager';
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+      await notifyGoalStatusChanged({
+        employeeName,
+        managerName,
+        action: 'approved',
+        comment: comment || '',
+        viewLink: `${appUrl}/dashboard/employee/goals`
+      });
+    }
+  } catch (err) {
+    console.error('Failed to trigger Teams approval notification:', err);
+  }
+
   revalidatePath('/dashboard/manager/approvals');
   redirect('/dashboard/manager/approvals');
 }
@@ -46,6 +71,30 @@ async function rejectGoal(formData: FormData) {
   await supabase.from('goals').update({
     status: 'rejected', manager_comment: comment || null
   }).eq('id', goalId);
+
+  // Trigger Teams notification
+  try {
+    const { data: appData } = await supabase
+      .from('approvals')
+      .select('*, profiles!approvals_employee_id_fkey(full_name), manager:profiles!approvals_manager_id_fkey(full_name)')
+      .eq('id', approvalId)
+      .single();
+
+    if (appData) {
+      const employeeName = (appData.profiles as any)?.full_name || 'Employee';
+      const managerName = (appData.manager as any)?.full_name || 'Manager';
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+      await notifyGoalStatusChanged({
+        employeeName,
+        managerName,
+        action: 'returned for rework',
+        comment: comment || '',
+        viewLink: `${appUrl}/dashboard/employee/goals`
+      });
+    }
+  } catch (err) {
+    console.error('Failed to trigger Teams rejection notification:', err);
+  }
 
   revalidatePath('/dashboard/manager/approvals');
   redirect('/dashboard/manager/approvals');

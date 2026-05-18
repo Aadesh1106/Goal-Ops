@@ -12,9 +12,12 @@ import { THRUST_AREAS } from '@/lib/constants';
 import { ArrowLeft, Save } from 'lucide-react';
 import Link from 'next/link';
 
+import { useEffect } from 'react';
+
 export default function NewGoalPage() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [remainingWeight, setRemainingWeight] = useState<number>(100);
 
   const {
     register,
@@ -22,23 +25,46 @@ export default function NewGoalPage() {
     formState: { errors, isSubmitting },
   } = useForm<CreateGoalFormValues>({ resolver: zodResolver(createGoalSchema) });
 
+  useEffect(() => {
+    const fetchRemaining = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: existingGoals } = await supabase
+          .from('goals')
+          .select('weightage, status')
+          .eq('employee_id', user.id);
+        const currentTotal = existingGoals
+          ?.filter((g) => g.status !== 'rejected')
+          ?.reduce((s, g) => s + g.weightage, 0) ?? 0;
+        setRemainingWeight(Math.max(0, 100 - currentTotal));
+      }
+    };
+    fetchRemaining();
+  }, []);
+
   const onSubmit = async (values: CreateGoalFormValues) => {
     setServerError(null);
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push('/auth/login'); return; }
 
-    // Fetch existing goals to check total weightage
-    const { data: existingGoals } = await supabase
-      .from('goals')
-      .select('weightage, status')
-      .eq('employee_id', user.id);
+    const S = remainingWeight;
+    const W = values.weightage;
 
-    const currentTotal = existingGoals
-      ?.filter((g) => g.status !== 'rejected')
-      ?.reduce((s, g) => s + g.weightage, 0) ?? 0;
-    if (currentTotal + values.weightage > 100) {
-      setServerError(`Cannot add goal. Adding this goal's weightage (${values.weightage}%) would make the total weightage ${currentTotal + values.weightage}%, which strictly exceeds the 100% limit. (Current total weightage is ${currentTotal}%).`);
+    if (W < 10) {
+      setServerError("Each goal must have at least 10% weightage.");
+      return;
+    }
+
+    if (W > S) {
+      setServerError(`You only have ${S}% remaining available.`);
+      return;
+    }
+
+    const remainder = S - W;
+    if (remainder > 0 && remainder < 10) {
+      setServerError(`Cannot assign ${W}% because remaining goals require minimum 10% allocation.`);
       return;
     }
 
@@ -125,10 +151,21 @@ export default function NewGoalPage() {
           <div>
             <label className="form-label" htmlFor="weightage">
               Weightage (%)
-              <span className="ml-2 font-normal" style={{ color: 'var(--text-muted)' }}>10 – 100%</span>
+              <span className="ml-2 font-normal" style={{ color: 'var(--text-muted)' }}>
+                {remainingWeight === 10
+                ? `Must be exactly 10% (completes your 100% total)`
+                : `Valid range: 10% – ${remainingWeight - 10}% (or exactly ${remainingWeight}% to reach 100%)`}
+              </span>
             </label>
-            <input id="weightage" type="number" min={10} max={100} className="form-input"
-              placeholder="e.g. 25" {...register('weightage', { valueAsNumber: true })} />
+            <input 
+              id="weightage" 
+              type="number" 
+              min={10} 
+              max={100} 
+              className="form-input"
+              placeholder={remainingWeight.toString()} 
+              {...register('weightage', { valueAsNumber: true })} 
+            />
             {errors.weightage && <p className="mt-1 text-xs" style={{ color: 'var(--status-error)' }}>{errors.weightage.message}</p>}
           </div>
 

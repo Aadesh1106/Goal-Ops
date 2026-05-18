@@ -15,21 +15,24 @@ export const metadata = { title: 'Admin Dashboard | GoalOps Enterprise' };
 async function unlockGoal(formData: FormData) {
   'use server';
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  // ✅ Verify admin role before proceeding
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+  if (profile?.role !== 'admin') return;
+
   const goalId = formData.get('goalId') as string;
-  
   await supabase.from('goals').update({ status: 'draft' }).eq('id', goalId);
   
   // Log audit trail
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) {
-    await supabase.from('audit_logs').insert({
-      actor_id: user.id,
-      entity_type: 'goal',
-      entity_id: goalId,
-      action: 'goal_reopened',
-      metadata: { unlocked_by_admin: true }
-    });
-  }
+  await supabase.from('audit_logs').insert({
+    actor_id: user.id,
+    entity_type: 'goal',
+    entity_id: goalId,
+    action: 'goal_reopened',
+    metadata: { unlocked_by_admin: true }
+  });
 
   revalidatePath('/dashboard/admin');
 }
@@ -38,8 +41,14 @@ async function unlockGoal(formData: FormData) {
 async function updateWindowOverride(formData: FormData) {
   'use server';
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  // ✅ Verify admin role
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+  if (profile?.role !== 'admin') return;
+
   const activeWindow = formData.get('activeWindow') as string;
-  
   const value = activeWindow === 'none' ? { active_window: null } : { active_window: activeWindow };
   
   await supabase

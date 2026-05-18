@@ -1,7 +1,7 @@
 // ============================================================
 // GoalOps Enterprise — Check-in Scheduler & Calendar Engine
 // ============================================================
-import { createClient } from '@/lib/supabase/client';
+// Note: server Supabase client is imported dynamically inside getActiveWindow()
 
 export type TrackingWindow = 'goal_setting' | 'Q1' | 'Q2' | 'Q3' | 'Q4' | null;
 

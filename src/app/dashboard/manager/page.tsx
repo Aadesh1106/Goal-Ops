@@ -43,8 +43,17 @@ async function pushSharedGoal(formData: FormData) {
   const { data: team } = await supabase.from('profiles').select('id').eq('manager_id', user.id);
   if (!team || team.length === 0) return;
 
-  // 3. Link this goal to all team members
+  // 3. Link this goal to all team members (respecting 8-goal maximum per BRD)
   for (const member of team) {
+    // ✅ BUG-007 Fix: Check current non-rejected goal count before pushing
+    const { count: existingCount } = await supabase
+      .from('goals')
+      .select('*', { count: 'exact', head: true })
+      .eq('employee_id', member.id)
+      .neq('status', 'rejected');
+
+    if ((existingCount ?? 0) >= 8) continue; // Skip — employee already at 8-goal limit
+
     const { data: empGoal } = await supabase.from('goals').insert({
       employee_id: member.id,
       thrust_area: thrustArea,
@@ -276,7 +285,7 @@ export default async function ManagerDashboardPage() {
                     <span className="text-xs font-bold" style={{ color: 'var(--brand-accent)' }}>{c.quarter}</span>
                   </div>
                   <p className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>
-                    {c.profiles?.full_name} · {c.progress_percentage}% achieved
+                    {c.profiles?.full_name} · {c.progress_percentage ?? 0}% achieved
                   </p>
                   <div className="progress-bar h-1">
                     <div className="progress-fill h-1" style={{ width: `${c.progress_percentage}%` }} />
