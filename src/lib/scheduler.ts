@@ -1,9 +1,15 @@
 // ============================================================
 // GoalOps Enterprise — Check-in Scheduler & Calendar Engine
 // ============================================================
-// Note: server Supabase client is imported dynamically inside getActiveWindow()
+// Server-only module. Use scheduler-client.ts in 'use client' components.
+// ============================================================
 
-export type TrackingWindow = 'goal_setting' | 'Q1' | 'Q2' | 'Q3' | 'Q4' | null;
+// Import locally for use in this file, and re-export for consumers
+import { getCalendarWindow, getWindowLabel, type TrackingWindow } from '@/lib/scheduler-client';
+
+// Re-export everything from the client-safe module
+export type { TrackingWindow } from '@/lib/scheduler-client';
+export { getCalendarWindow, getWindowLabel as getWindowDescription } from '@/lib/scheduler-client';
 
 export interface WindowStatus {
   activeWindow: TrackingWindow;
@@ -12,48 +18,11 @@ export interface WindowStatus {
 }
 
 /**
- * Returns the active period name based on the calendar month
- */
-export function getCalendarWindow(date: Date = new Date()): TrackingWindow {
-  const month = date.getMonth() + 1; // 1-indexed
-
-  switch (month) {
-    case 5: // May
-      return 'goal_setting';
-    case 7: // July
-      return 'Q1';
-    case 10: // October
-      return 'Q2';
-    case 1: // January
-      return 'Q3';
-    case 3: // March
-    case 4: // April
-      return 'Q4';
-    default:
-      return null;
-  }
-}
-
-/**
- * Gets the readable window description
- */
-export function getWindowDescription(window: TrackingWindow): string {
-  switch (window) {
-    case 'goal_setting': return 'Goal Setting & Allocation (May)';
-    case 'Q1': return 'Quarter 1 Check-in (July)';
-    case 'Q2': return 'Quarter 2 Check-in (October)';
-    case 'Q3': return 'Quarter 3 Check-in (January)';
-    case 'Q4': return 'Quarter 4 Check-in (March/April)';
-    default: return 'No Active Window (Closed)';
-  }
-}
-
-/**
- * Retrieves the currently active window, factoring in admin overrides
+ * Retrieves the currently active window, factoring in admin overrides.
+ * SERVER-ONLY — dynamically imports the Supabase server client.
  */
 export async function getActiveWindow(): Promise<WindowStatus> {
   // 1. Check database settings for an admin override
-  // Note: We use the server-compatible Supabase client dynamically or a fallback
   try {
     const { createClient } = await import('@/lib/supabase/server');
     const supabase = await createClient();

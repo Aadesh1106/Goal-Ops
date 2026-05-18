@@ -12,7 +12,7 @@ import { QUARTERS } from '@/lib/constants';
 import { ArrowLeft, Save, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { triggerTeamsCheckinNotification } from './actions';
-import { getCalendarWindow } from '@/lib/scheduler';
+import { getCalendarWindow } from '@/lib/scheduler-client';
 
 export default function NewCheckinPage() {
   const router = useRouter();
