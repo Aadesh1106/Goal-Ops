@@ -44,28 +44,28 @@
   }
 
   .dashboard-layout {
-    /* Background layers */
-    --bg-base: #f8fafc;
-    --bg-surface: #ffffff;
-    --bg-elevated: #f1f5f9;
-    --bg-card: #ffffff;
-    --bg-hover: #f8fafc;
-    --bg-border: #e2e8f0;
+    /* Background layers - deep space navy/black */
+    --bg-base: #090b11;
+    --bg-surface: #0f111a;
+    --bg-elevated: #161925;
+    --bg-card: #111422;
+    --bg-hover: #1b1f32;
+    --bg-border: rgba(255, 255, 255, 0.06);
 
     /* Brand overrides */
-    --brand-primary: #4f46e5;
-    --brand-secondary: #7c3aed;
-    --brand-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    --brand-primary: #6366f1;
+    --brand-secondary: #8b5cf6;
+    --brand-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
 
     /* Text */
-    --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --text-muted: #94a3b8;
-    --text-disabled: #cbd5e1;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --text-disabled: #475569;
 
     /* Shadow */
-    --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 8px -1px rgba(0, 0, 0, 0.03);
-    --shadow-glow: 0 10px 15px -3px rgba(99, 102, 241, 0.1), 0 4px 6px -4px rgba(99, 102, 241, 0.1);
+    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 35px rgba(99, 102, 241, 0.12);
   }
 
   * {

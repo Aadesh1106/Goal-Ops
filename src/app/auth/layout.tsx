@@ -102,8 +102,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
       </div>
 
-      {/* Right panel: Light-mode clean login interface */}
-      <div className="flex-1 flex items-center justify-center p-6 md:p-12 dashboard-layout" style={{ background: '#f8fafc' }}>
+      {/* Right panel: Ultra-premium dark login interface */}
+      <div className="flex-1 flex items-center justify-center p-6 md:p-12 dashboard-layout" style={{ background: 'var(--bg-base)' }}>
         <div className="w-full max-w-md">
           {children}
         </div>
