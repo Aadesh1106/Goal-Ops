@@ -197,10 +197,12 @@ Judges can explore the complete application flow using these pre-configured or d
 | **Aravind** | `aravind@hpcl.com` | `password123` | 0 Goals | **0%** | **100%** | **Empty Sheet**: Great for showing the complete end-to-end goal creation wizard from scratch. |
 | **Anto** | `rosejacktitanic2001@gmail.com` | `password123` | 0 Goals | **0%** | **100%** | **Empty Sheet**: Sandbox for complete end-to-end creation. |
 
-### 👥 Manager (L1) Persona
+### 👥 Manager (L1) Personas
 * **Responsibilities:** Manage approvals, modify direct reports' targets/weightages inline, enter comments, push shared departmental KPIs.
-* **Email:** `manager@hpcl.com`
-* **Password:** `password123`
+* **Sarah Manager (General Dept):** `manager@hpcl.com` | `password123`
+* **Bob Manager (Engineering Dept):** `bobmanager@hpcl.com` | `password123`
+
+> ⚙️ **Dynamic Hierarchy:** When a new employee registers or logs in via SSO, GoalOps automatically routes them to the correct manager within their designated department (e.g., Engineering employees are automatically assigned to Bob Manager).
 
 ### 👑 Admin / HR Persona
 * **Responsibilities:** Lock bypass override control, cycles view, CSV exports, SLA escalation panels.
