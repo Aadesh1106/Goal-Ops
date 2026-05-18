@@ -86,6 +86,12 @@ GoalOps Enterprise enforces the active windows for achievement capture:
 
 ## 4. System Architecture
 
+[![System Architecture Diagram](https://drive.google.com/uc?export=view&id=1pSuBVtApzhlH6w4Q0TsPJ2OA4ccDTpBW)](https://drive.google.com/file/d/1pSuBVtApzhlH6w4Q0TsPJ2OA4ccDTpBW/view?usp=drive_link)
+
+*Click the image above to view the high-resolution system architecture diagram on Google Drive.*
+
+### Architectural Flow
+
 ```mermaid
 graph TD
   User((User Session)) --> NextJS[Next.js App Router]
