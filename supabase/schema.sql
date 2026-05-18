@@ -441,9 +441,9 @@ CREATE POLICY "approvals: admin reads all"
   ON approvals FOR SELECT
   USING (current_user_role() = 'admin');
 
-CREATE POLICY "approvals: manager creates"
+CREATE POLICY "approvals: employee creates"
   ON approvals FOR INSERT
-  WITH CHECK (manager_id = auth.uid());
+  WITH CHECK (employee_id = auth.uid());
 
 CREATE POLICY "approvals: manager updates own"
   ON approvals FOR UPDATE

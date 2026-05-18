@@ -378,5 +378,27 @@ CREATE INDEX IF NOT EXISTS idx_goals_employee_cycle ON public.goals (employee_id
 CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON public.audit_logs (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_profiles_department ON public.profiles (department) WHERE is_active = true;
 
+-- ==========================================
+-- 9. Fix Approvals Table RLS Policy
+-- ==========================================
+DO $$
+BEGIN
+  -- Drop the incorrect policy if it exists
+  IF EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'approvals' AND policyname = 'approvals: manager creates'
+  ) THEN
+    DROP POLICY "approvals: manager creates" ON public.approvals;
+  END IF;
+
+  -- Create the correct policy
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'approvals' AND policyname = 'approvals: employee creates'
+  ) THEN
+    CREATE POLICY "approvals: employee creates"
+      ON public.approvals FOR INSERT
+      WITH CHECK (employee_id = auth.uid());
+  END IF;
+END $$;
+
 -- Commit transaction
 COMMIT;
