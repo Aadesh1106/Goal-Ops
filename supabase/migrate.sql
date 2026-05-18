@@ -407,22 +407,31 @@ END $$;
 DO $$
 DECLARE
   emp RECORD;
-  mgr_id UUID;
+  mgr_array UUID[];
+  mgr_count INT;
+  i INT := 0;
 BEGIN
   FOR emp IN SELECT id, department FROM public.profiles WHERE role = 'employee'
   LOOP
-    -- Try to find a manager in the exact same department
-    SELECT id INTO mgr_id FROM public.profiles 
-    WHERE role = 'manager' AND department = emp.department 
-    ORDER BY created_at ASC
-    LIMIT 1;
+    -- Get all managers in this employee's department
+    SELECT array_agg(id ORDER BY created_at ASC) INTO mgr_array
+    FROM public.profiles 
+    WHERE role = 'manager' AND department = emp.department;
 
-    IF FOUND THEN
-      -- 1. Reassign the employee to the correct manager
-      UPDATE public.profiles SET manager_id = mgr_id WHERE id = emp.id;
+    mgr_count := array_length(mgr_array, 1);
+
+    IF mgr_count > 0 THEN
+      -- 1. Reassign the employee to a manager in a round-robin fashion
+      UPDATE public.profiles 
+      SET manager_id = mgr_array[(i % mgr_count) + 1] 
+      WHERE id = emp.id;
       
       -- 2. Migrate any pending approval requests to the correct manager
-      UPDATE public.approvals SET manager_id = mgr_id WHERE employee_id = emp.id;
+      UPDATE public.approvals 
+      SET manager_id = mgr_array[(i % mgr_count) + 1] 
+      WHERE employee_id = emp.id;
+
+      i := i + 1;
     END IF;
   END LOOP;
 END $$;
