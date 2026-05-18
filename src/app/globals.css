@@ -44,28 +44,28 @@
   }
 
   .dashboard-layout {
-    /* Background layers - soft premium slate-blue with subtle indigo tints */
+    /* Background layers - Premium Slate theme */
     --bg-base: #f1f5f9;
     --bg-surface: #f8fafc;
     --bg-elevated: #e2e8f0;
-    --bg-card: #f8fafc;
+    --bg-card: #ffffff;
     --bg-hover: #f1f5f9;
-    --bg-border: #e2e8f0;
+    --bg-border: #cbd5e1;
 
-    /* Brand overrides */
+    /* Brand overrides - Indigo + Teal */
     --brand-primary: #4f46e5;
-    --brand-secondary: #7c3aed;
-    --brand-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    --brand-secondary: #0d9488;
+    --brand-gradient: linear-gradient(135deg, #4f46e5 0%, #0d9488 100%);
 
     /* Text */
-    --text-primary: #111827;
-    --text-secondary: #4b5563;
-    --text-muted: #6b7280;
-    --text-disabled: #9ca3af;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --text-disabled: #94a3b8;
 
     /* Shadow */
-    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    --shadow-glow: 0 10px 15px -3px rgba(99, 102, 241, 0.1), 0 4px 6px -4px rgba(99, 102, 241, 0.05);
+    --shadow-card: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -1px rgba(15, 23, 42, 0.02);
+    --shadow-glow: 0 10px 15px -3px rgba(13, 148, 136, 0.08), 0 4px 6px -4px rgba(13, 148, 136, 0.03);
   }
 
   * {

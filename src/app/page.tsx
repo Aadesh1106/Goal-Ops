@@ -7,13 +7,13 @@ export default function LandingPage() {
       
       {/* Soft Elegant Floating Gradient Orbs in background */}
       <div className="absolute top-20 left-1/4 w-96 h-96 bg-indigo-500/5 rounded-full filter blur-[100px] pointer-events-none animate-pulse"></div>
-      <div className="absolute top-80 right-1/4 w-96 h-96 bg-cyan-500/5 rounded-full filter blur-[100px] pointer-events-none animate-pulse" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute top-80 right-1/4 w-96 h-96 bg-teal-500/5 rounded-full filter blur-[100px] pointer-events-none animate-pulse" style={{ animationDelay: '2s' }}></div>
 
       {/* Nav */}
       <nav className="flex items-center justify-between px-8 py-5 relative z-10" style={{ borderBottom: '1px solid #e2e8f0' }}>
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold"
-            style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)' }}>
+            style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #0d9488 100%)' }}>
             G
           </div>
           <span className="font-bold text-base text-slate-900">
@@ -28,7 +28,7 @@ export default function LandingPage() {
           </Link>
           <Link href="/auth/register"
             className="btn-primary text-sm px-4 py-2"
-            style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)' }}>
+            style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #0d9488 100%)' }}>
             Get Started
           </Link>
         </div>
@@ -45,7 +45,7 @@ export default function LandingPage() {
 
         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-6 max-w-4xl leading-tight text-slate-900">
           Replace spreadsheets with{' '}
-          <span className="gradient-text" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>operational intelligence</span>
+          <span className="gradient-text" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #0d9488 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>operational intelligence</span>
         </h1>
 
         <p className="text-lg max-w-2xl mb-10 text-slate-600" style={{ lineHeight: '1.75' }}>
@@ -56,7 +56,7 @@ export default function LandingPage() {
         <div className="flex items-center gap-4 flex-wrap justify-center mb-16">
           <Link href="/auth/register"
             className="btn-primary px-7 py-3 text-base"
-            style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)' }}>
+            style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #0d9488 100%)' }}>
             Start Free Trial
           </Link>
           <Link href="/auth/login"
@@ -74,7 +74,7 @@ export default function LandingPage() {
             { value: '3 Roles', label: 'Enterprise Workflows' },
           ].map((s) => (
             <div key={s.label} className="text-center">
-              <div className="text-3xl font-bold gradient-text mb-1" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{s.value}</div>
+              <div className="text-3xl font-bold gradient-text mb-1" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #0d9488 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{s.value}</div>
               <div className="text-xs text-slate-500">{s.label}</div>
             </div>
           ))}
