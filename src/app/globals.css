@@ -454,4 +454,34 @@
   .ring-brand {
     --tw-ring-color: rgba(99, 102, 241, 0.3);
   }
+
+  /* Innovative glowing and ticker animations */
+  .animated-pulse-glow {
+    animation: neon-pulse 3s infinite alternate ease-in-out;
+  }
+
+  @keyframes neon-pulse {
+    0% {
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.15), 0 0 30px rgba(99, 102, 241, 0.05);
+      border-color: rgba(99, 102, 241, 0.2);
+    }
+    100% {
+      box-shadow: 0 0 30px rgba(99, 102, 241, 0.3), 0 0 60px rgba(99, 102, 241, 0.15);
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+  }
+
+  .audit-ticker {
+    display: flex;
+    flex-direction: column;
+    animation: ticker-slide 14s infinite ease-in-out;
+  }
+
+  @keyframes ticker-slide {
+    0%, 20% { transform: translateY(0); }
+    23%, 43% { transform: translateY(-24px); }
+    46%, 66% { transform: translateY(-48px); }
+    69%, 89% { transform: translateY(-72px); }
+    92%, 100% { transform: translateY(0); }
+  }
 }
