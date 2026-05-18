@@ -427,5 +427,21 @@ BEGIN
   END LOOP;
 END $$;
 
+-- ==========================================
+-- 11. Fix Shared Goals Table RLS Policy
+-- ==========================================
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'shared_goals' AND policyname = 'shared_goals: manager inserts'
+  ) THEN
+    CREATE POLICY "shared_goals: manager inserts"
+      ON public.shared_goals FOR INSERT
+      WITH CHECK (
+        primary_goal_id IN (SELECT id FROM goals WHERE employee_id = auth.uid())
+      );
+  END IF;
+END $$;
+
 -- Commit transaction
 COMMIT;

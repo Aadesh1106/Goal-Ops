@@ -490,6 +490,12 @@ CREATE POLICY "shared_goals: admin reads all"
   ON shared_goals FOR SELECT
   USING (current_user_role() = 'admin');
 
+CREATE POLICY "shared_goals: manager inserts"
+  ON shared_goals FOR INSERT
+  WITH CHECK (
+    primary_goal_id IN (SELECT id FROM goals WHERE employee_id = auth.uid())
+  );
+
 -- ============================================================
 -- SAMPLE DEMO DATA
 -- ============================================================
