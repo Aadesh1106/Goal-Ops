@@ -188,13 +188,19 @@ Judges can explore the complete application flow using these pre-configured or d
 
 ### 👤 Employee Personas
 
-| Employee Name | Work Email | Default Password | Goals Configured | Weightage Used | Persona / Demo Purpose |
+| Employee Name | Work Email | Default Password | Goals | Weightage | Persona / Demo Purpose |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Rohan Tester** | `rohan@hpcl.com` | `password123` | 2 Goals | **100%** | **Locked Sheet**: Fully approved goals. Ideal for testing quarterly progress check-ins. |
 | **Rohan Test New** | `rohan_test_new@hpcl.com` | `password123` | 3 Goals | **100%** | **Submitted Sheet**: Awaiting manager approval. Test L1 Manager rejection/approval flows. |
-| **Arun** | `arun@hpcl.com` | `password123` | 6 Goals | **100%** | **Invalid Draft**: Exactly 100% weightage limit.  |
-| **google** | `google@google.com` | `password123` | 6 Goals | **90%** | **Incomplete Draft**: Needs exactly 10% more weightage to unlock the submission button. |
+| **Arun** | `arun@hpcl.com` | `password123` | 6 Goals | **110%** | **Invalid Draft**: Over 100% weightage limit. Reduce weightages before submission. |
+| **Arjun Engineer** | `employee@hpcl.com` | `password123` | 6 Goals | **95%** | **Incomplete Draft**: Needs exactly 5% more weightage. |
+| **google** | `google@google.com` | `password123` | 6 Goals | **90%** | **Incomplete Draft**: Needs exactly 10% more weightage. |
+| **Alice Employee** | `alice.employee.test@gmail.com` | `password123` | 3 Goals | **86%** | **Incomplete Draft**: Needs exactly 14% more weightage. |
+| **Alice Employee Two** | `alice.employee.test2@gmail.com` | `password123` | 3 Goals | **100%** | **Ready to Submit**: Needs to click submit. |
 | **Roshan** | `rosejacktitanic648@gmail.com` | `password123` | 2 Goals | **50%** | **Draft Sheet**: Edit goal weights, add new goals, and submit to manager. |
+| **Varun** | `varun@hpcl.com` | `password123` | 2 Goals | **22%** | **Draft Sheet**: Edit goal weights, add new goals. |
+| **Anto** | `rosejacktitanic2001@gmail.com` | `password123` | 2 Goals | **24%** | **Draft Sheet**: Edit goal weights, add new goals. |
+| **Aravind** | `aravind@hpcl.com` | `password123` | 1 Goal | **10%** | **Approved Sheet**: Early approval test. |
 | **N Aadesh** | `aadeshn45@gmail.com` | `password123` | 1 Goal | **10%** | **Approved Sheet**: Early approval test. |
 
 ### 👥 Manager (L1) Personas
