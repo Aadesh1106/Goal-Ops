@@ -4,11 +4,14 @@ import { revalidatePath } from 'next/cache';
 import { PageHeader, KpiCard } from '@/components/layout/DashboardShell';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { Users, Target, CheckSquare, AlertTriangle, Activity, Lock, Unlock, Download } from 'lucide-react';
+import { Users, Target, CheckSquare, AlertTriangle, Activity, Lock, Unlock, Download, Share2, Calendar } from 'lucide-react';
 import { DepartmentPerformanceChart } from '@/components/ui/Charts';
+import { DEPARTMENTS, THRUST_AREAS } from '@/lib/constants';
+import { getActiveWindow } from '@/lib/scheduler';
 
-export const metadata = { title: 'Admin Dashboard' };
+export const metadata = { title: 'Admin Dashboard | GoalOps Enterprise' };
 
+// ─── Server Action: Unlock Goal Sheet Row ─────────────────────
 async function unlockGoal(formData: FormData) {
   'use server';
   const supabase = await createClient();
@@ -31,10 +34,95 @@ async function unlockGoal(formData: FormData) {
   revalidatePath('/dashboard/admin');
 }
 
+// ─── Server Action: Update Scheduler Window Override ─────────
+async function updateWindowOverride(formData: FormData) {
+  'use server';
+  const supabase = await createClient();
+  const activeWindow = formData.get('activeWindow') as string;
+  
+  const value = activeWindow === 'none' ? { active_window: null } : { active_window: activeWindow };
+  
+  await supabase
+    .from('app_settings')
+    .upsert({ key: 'window_override', value })
+    .eq('key', 'window_override');
+
+  revalidatePath('/dashboard/admin');
+}
+
+// ─── Server Action: Push Shared Departmental Goal ────────────
+async function pushAdminSharedGoal(formData: FormData) {
+  'use server';
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const targetDept = formData.get('targetDept') as string;
+  const thrustArea = formData.get('thrustArea') as string;
+  const title = formData.get('title') as string;
+  const description = formData.get('description') as string;
+  const uomType = formData.get('uomType') as string;
+  const targetValue = Number(formData.get('targetValue'));
+  const weightage = Number(formData.get('weightage'));
+
+  // 1. Create a "primary" parent goal owned by the Admin
+  const { data: primaryGoal, error: goalError } = await supabase.from('goals').insert({
+    employee_id: user.id,
+    thrust_area: thrustArea,
+    title: `[Manager KPI] ${title}`, // Act as master KPI
+    description,
+    uom_type: uomType,
+    target_value: targetValue,
+    weightage,
+    status: 'locked'
+  }).select('id').single();
+
+  if (goalError || !primaryGoal) {
+    console.error('Admin Shared Goal parent creation failed:', goalError);
+    return;
+  }
+
+  // 2. Fetch all matching active employees in the selected department (or globally)
+  let query = supabase.from('profiles').select('id').neq('id', user.id).eq('is_active', true);
+  if (targetDept !== 'all') {
+    query = query.eq('department', targetDept);
+  }
+  const { data: employees } = await query;
+  if (!employees || employees.length === 0) return;
+
+  // 3. Link this goal to all target employees, creating child goals and shared links
+  for (const emp of employees) {
+    const { data: empGoal } = await supabase.from('goals').insert({
+      employee_id: emp.id,
+      thrust_area: thrustArea,
+      title: `[Shared] ${title}`,
+      description: `Departmental KPI: ${description}`,
+      uom_type: uomType,
+      target_value: targetValue,
+      weightage,
+      status: 'locked'
+    }).select('id').single();
+
+    if (empGoal) {
+      await supabase.from('shared_goals').insert({
+        primary_goal_id: primaryGoal.id,
+        shared_with_employee_id: emp.id,
+        contribution_weightage: weightage,
+        status: 'active'
+      });
+    }
+  }
+
+  revalidatePath('/dashboard/admin');
+}
+
 export default async function AdminDashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/auth/login');
+
+  // Load scheduler config
+  const { activeWindow, isOverride } = await getActiveWindow();
 
   // Platform-wide metrics
   const [
@@ -93,7 +181,8 @@ export default async function AdminDashboardPage() {
         <KpiCard label="Open Escalations" value={openEscalations ?? 0} icon={<AlertTriangle size={16} style={{ color: '#ef4444' }} />} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
+        {/* Recent Activity */}
         <Card>
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
@@ -125,6 +214,7 @@ export default async function AdminDashboardPage() {
           )}
         </Card>
 
+        {/* Department Performance Chart */}
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle>Department Performance</CardTitle>
@@ -135,7 +225,8 @@ export default async function AdminDashboardPage() {
         </Card>
       </div>
 
-      <Card className="flex flex-col mt-6">
+      {/* Goal Governance Lock Bypass */}
+      <Card className="flex flex-col mb-6">
         <CardHeader>
           <CardTitle>Goal Governance Controls (Lock Bypass & Exception Management)</CardTitle>
         </CardHeader>
@@ -181,7 +272,111 @@ export default async function AdminDashboardPage() {
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
+        {/* PUSH SHARED GOAL PANEL */}
+        <Card className="lg:col-span-2 flex flex-col">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Share2 size={16} className="text-indigo-400" />
+              Global KPI Distribution (Push Shared Goal)
+            </CardTitle>
+          </CardHeader>
+          <form action={pushAdminSharedGoal} className="flex flex-col gap-4 text-xs">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="form-label mb-1 block">Target Department</label>
+                <select name="targetDept" className="form-input text-xs" required>
+                  <option value="all">All Active Employees (Global)</option>
+                  {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="form-label mb-1 block">Thrust Area</label>
+                <select name="thrustArea" className="form-input text-xs" required>
+                  {THRUST_AREAS.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="form-label mb-1 block">Goal Title</label>
+                <input name="title" type="text" className="form-input text-xs" placeholder="e.g. Complete quarterly safety audits" required />
+              </div>
+              <div>
+                <label className="form-label mb-1 block">UoM Type</label>
+                <select name="uomType" className="form-input text-xs" required>
+                  <option value="numeric_min">Numeric Min (Higher is better)</option>
+                  <option value="numeric_max">Numeric Max (Lower is better)</option>
+                  <option value="timeline">Timeline (Milestone)</option>
+                  <option value="zero_based">Zero-based (Binary 100/0)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="form-label mb-1 block">Goal Description</label>
+              <textarea name="description" className="form-input text-xs min-h-[50px]" placeholder="Outline thrust targets and operational impact detail..." required />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="form-label mb-1 block">Target Value</label>
+                <input name="targetValue" type="number" min="0" defaultValue="100" className="form-input text-xs" required />
+              </div>
+              <div>
+                <label className="form-label mb-1 block">Weightage (%)</label>
+                <input name="weightage" type="number" min="10" max="100" defaultValue="10" className="form-input text-xs" required />
+              </div>
+            </div>
+
+            <button type="submit" className="btn-primary py-2.5 text-xs flex items-center justify-center gap-1.5 font-bold mt-2">
+              <Share2 size={13} /> Distribute Departmental KPI
+            </button>
+          </form>
+        </Card>
+
+        {/* SCHEDULER WINDOW OVERRIDE */}
+        <Card className="flex flex-col">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar size={16} className="text-indigo-400" />
+              Scheduler Override Center
+            </CardTitle>
+          </CardHeader>
+          <form action={updateWindowOverride} className="flex flex-col gap-4 text-xs justify-between h-full">
+            <div>
+              <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>
+                Manually force open any quarterly cycle window. Applying an override locks all check-in forms to the selected quarter platform-wide, bypassing normal date restrictions.
+              </p>
+              
+              <div className="p-3 rounded-lg mb-4" style={{ background: 'var(--bg-elevated)' }}>
+                <span className="font-semibold block mb-0.5" style={{ color: 'var(--text-primary)' }}>Current Window:</span>
+                <Badge variant={activeWindow ? 'approved' : 'draft'}>
+                  {activeWindow ? `Active Window: ${activeWindow.toUpperCase()}` : 'Date-Derived Calendar Mode'}
+                </Badge>
+                {isOverride && <span className="ml-1 text-[10px] text-indigo-400 font-bold block mt-1">⚠️ Override active</span>}
+              </div>
+
+              <label className="form-label mb-1 block font-semibold">Override Period Selector</label>
+              <select name="activeWindow" className="form-input text-xs" defaultValue={activeWindow || 'none'}>
+                <option value="none">Automatic Date-Derived Mode</option>
+                <option value="goal_setting">Goal Setting & Allocation (May)</option>
+                <option value="Q1">Q1 Check-in (July)</option>
+                <option value="Q2">Q2 Check-in (October)</option>
+                <option value="Q3">Q3 Check-in (January)</option>
+                <option value="Q4">Q4 Check-in (March/April)</option>
+              </select>
+            </div>
+
+            <button type="submit" className="btn-secondary py-2.5 text-xs flex items-center justify-center gap-1.5 font-bold mt-4" style={{ borderColor: 'rgba(99,102,241,0.3)', color: '#818cf8' }}>
+              <Calendar size={13} /> Apply Scheduler Override
+            </button>
+          </form>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
