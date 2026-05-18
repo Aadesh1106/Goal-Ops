@@ -44,8 +44,7 @@ async function updateWindowOverride(formData: FormData) {
   
   await supabase
     .from('app_settings')
-    .upsert({ key: 'window_override', value })
-    .eq('key', 'window_override');
+    .upsert({ key: 'window_override', value });
 
   revalidatePath('/dashboard/admin');
 }

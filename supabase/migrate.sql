@@ -257,6 +257,9 @@ CREATE TABLE IF NOT EXISTS app_settings (
   key TEXT PRIMARY KEY,
   value JSONB NOT NULL
 );
+ALTER TABLE public.app_settings DISABLE ROW LEVEL SECURITY;
+GRANT ALL ON TABLE public.app_settings TO postgres, service_role, authenticated, anon;
+
 INSERT INTO app_settings (key, value) 
 VALUES ('window_override', '{"active_window": null}'::jsonb)
 ON CONFLICT (key) DO NOTHING;
