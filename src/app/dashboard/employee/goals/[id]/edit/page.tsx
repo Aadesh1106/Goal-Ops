@@ -19,6 +19,7 @@ export default function EditGoalPage() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isShared, setIsShared] = useState(false);
+  const [goalStatus, setGoalStatus] = useState<string | null>(null);
 
   const {
     register,
@@ -27,12 +28,15 @@ export default function EditGoalPage() {
     formState: { errors, isSubmitting },
   } = useForm<CreateGoalFormValues>({ resolver: zodResolver(createGoalSchema) });
 
+  const isLocked = (goalStatus === 'approved' || goalStatus === 'locked') && !isShared;
+
   useEffect(() => {
     const fetchGoal = async () => {
       const supabase = createClient();
       const { data } = await supabase.from('goals').select('*').eq('id', goalId).single();
       if (data) {
         setIsShared(data.title.startsWith('[Shared]'));
+        setGoalStatus(data.status);
         reset({
           thrust_area: data.thrust_area,
           title: data.title,
@@ -48,6 +52,10 @@ export default function EditGoalPage() {
   }, [goalId, reset]);
 
   const onSubmit = async (values: CreateGoalFormValues) => {
+    if (isLocked) {
+      setServerError('This goal has already been approved and locked. Standard modifications are restricted.');
+      return;
+    }
     setServerError(null);
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -97,7 +105,7 @@ export default function EditGoalPage() {
     <div>
       <PageHeader
         title="Edit Goal"
-        subtitle={isShared ? "Departmental KPI: Only the weightage can be updated. Title and targets are locked." : "Update your goal details. Only draft and rejected goals can be edited."}
+        subtitle={isLocked ? "This goal is approved and locked. Standard modification is restricted without Admin intervention." : isShared ? "Departmental KPI: Only the weightage can be updated. Title and targets are locked." : "Update your goal details. Only draft and rejected goals can be edited."}
         action={
           <Link href="/dashboard/employee/goals"
             className="btn-secondary flex items-center gap-2 text-sm px-4 py-2">
@@ -109,9 +117,21 @@ export default function EditGoalPage() {
       <Card className="max-w-2xl">
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
 
+          {isLocked && (
+            <div className="flex items-start gap-3 p-4 rounded-xl border" style={{ background: 'rgba(239,68,68,0.03)', borderColor: 'rgba(239,68,68,0.15)' }}>
+              <span className="text-red-400 shrink-0 mt-0.5">⚠️</span>
+              <div>
+                <h4 className="font-bold text-white text-sm">Goal Sheet Locked</h4>
+                <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+                  This goal has already been approved and locked. Standard modification is restricted. Please contact your administrator or HR skip-level if revisions are necessary.
+                </p>
+              </div>
+            </div>
+          )}
+
           <div>
-            <label className="form-label" htmlFor="edit-thrust" style={isShared ? { opacity: 0.7 } : undefined}>Thrust Area</label>
-            <select id="edit-thrust" className="form-input" disabled={isShared} style={isShared ? { backgroundColor: 'var(--bg-elevated)', opacity: 0.7, cursor: 'not-allowed', pointerEvents: 'none' } : undefined} {...register('thrust_area')}>
+            <label className="form-label" htmlFor="edit-thrust" style={(isShared || isLocked) ? { opacity: 0.7 } : undefined}>Thrust Area</label>
+            <select id="edit-thrust" className="form-input" disabled={isShared || isLocked} style={(isShared || isLocked) ? { backgroundColor: 'var(--bg-elevated)', opacity: 0.7, cursor: 'not-allowed', pointerEvents: 'none' } : undefined} {...register('thrust_area')}>
               <option value="">Select thrust area…</option>
               {THRUST_AREAS.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -119,21 +139,21 @@ export default function EditGoalPage() {
           </div>
 
           <div>
-            <label className="form-label" htmlFor="edit-title" style={isShared ? { opacity: 0.7 } : undefined}>Goal Title</label>
-            <input id="edit-title" className="form-input" readOnly={isShared} style={isShared ? { backgroundColor: 'var(--bg-elevated)', opacity: 0.7, cursor: 'not-allowed', pointerEvents: 'none' } : undefined} {...register('title')} />
+            <label className="form-label" htmlFor="edit-title" style={(isShared || isLocked) ? { opacity: 0.7 } : undefined}>Goal Title</label>
+            <input id="edit-title" className="form-input" readOnly={isShared || isLocked} style={(isShared || isLocked) ? { backgroundColor: 'var(--bg-elevated)', opacity: 0.7, cursor: 'not-allowed', pointerEvents: 'none' } : undefined} {...register('title')} />
             {errors.title && <p className="mt-1 text-xs" style={{ color: 'var(--status-error)' }}>{errors.title.message}</p>}
           </div>
 
           <div>
-            <label className="form-label" htmlFor="edit-desc" style={isShared ? { opacity: 0.7 } : undefined}>Description</label>
-            <textarea id="edit-desc" className="form-input" rows={3} readOnly={isShared} style={isShared ? { backgroundColor: 'var(--bg-elevated)', opacity: 0.7, cursor: 'not-allowed', pointerEvents: 'none' } : undefined} {...register('description')} />
+            <label className="form-label" htmlFor="edit-desc" style={(isShared || isLocked) ? { opacity: 0.7 } : undefined}>Description</label>
+            <textarea id="edit-desc" className="form-input" rows={3} readOnly={isShared || isLocked} style={(isShared || isLocked) ? { backgroundColor: 'var(--bg-elevated)', opacity: 0.7, cursor: 'not-allowed', pointerEvents: 'none' } : undefined} {...register('description')} />
             {errors.description && <p className="mt-1 text-xs" style={{ color: 'var(--status-error)' }}>{errors.description.message}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="form-label" htmlFor="edit-uom" style={isShared ? { opacity: 0.7 } : undefined}>Unit of Measurement</label>
-              <select id="edit-uom" className="form-input" disabled={isShared} style={isShared ? { backgroundColor: 'var(--bg-elevated)', opacity: 0.7, cursor: 'not-allowed', pointerEvents: 'none' } : undefined} {...register('uom_type')}>
+              <label className="form-label" htmlFor="edit-uom" style={(isShared || isLocked) ? { opacity: 0.7 } : undefined}>Unit of Measurement</label>
+              <select id="edit-uom" className="form-input" disabled={isShared || isLocked} style={(isShared || isLocked) ? { backgroundColor: 'var(--bg-elevated)', opacity: 0.7, cursor: 'not-allowed', pointerEvents: 'none' } : undefined} {...register('uom_type')}>
                 <option value="numeric_min">Numeric Min (Higher is Better)</option>
                 <option value="numeric_max">Numeric Max (Lower is Better)</option>
                 <option value="timeline">Timeline (Days - Lower is Better)</option>
@@ -142,16 +162,16 @@ export default function EditGoalPage() {
               {errors.uom_type && <p className="mt-1 text-xs" style={{ color: 'var(--status-error)' }}>{errors.uom_type.message}</p>}
             </div>
             <div>
-              <label className="form-label" htmlFor="edit-target" style={isShared ? { opacity: 0.7 } : undefined}>Target Value</label>
-              <input id="edit-target" type="number" step="0.01" className="form-input" readOnly={isShared} style={isShared ? { backgroundColor: 'var(--bg-elevated)', opacity: 0.7, cursor: 'not-allowed', pointerEvents: 'none' } : undefined}
+              <label className="form-label" htmlFor="edit-target" style={(isShared || isLocked) ? { opacity: 0.7 } : undefined}>Target Value</label>
+              <input id="edit-target" type="number" step="0.01" className="form-input" readOnly={isShared || isLocked} style={(isShared || isLocked) ? { backgroundColor: 'var(--bg-elevated)', opacity: 0.7, cursor: 'not-allowed', pointerEvents: 'none' } : undefined}
                 {...register('target_value', { valueAsNumber: true })} />
               {errors.target_value && <p className="mt-1 text-xs" style={{ color: 'var(--status-error)' }}>{errors.target_value.message}</p>}
             </div>
           </div>
 
           <div>
-            <label className="form-label" htmlFor="edit-weight">Weightage (%) <span className="font-normal" style={{ color: 'var(--text-muted)' }}>10 – 100%</span></label>
-            <input id="edit-weight" type="number" min={10} max={100} className="form-input"
+            <label className="form-label" htmlFor="edit-weight" style={isLocked ? { opacity: 0.7 } : undefined}>Weightage (%) <span className="font-normal" style={{ color: 'var(--text-muted)' }}>10 – 100%</span></label>
+            <input id="edit-weight" type="number" min={10} max={100} className="form-input" readOnly={isLocked} style={isLocked ? { backgroundColor: 'var(--bg-elevated)', opacity: 0.7, cursor: 'not-allowed', pointerEvents: 'none' } : undefined}
               {...register('weightage', { valueAsNumber: true })} />
             {errors.weightage && <p className="mt-1 text-xs" style={{ color: 'var(--status-error)' }}>{errors.weightage.message}</p>}
           </div>
@@ -164,8 +184,9 @@ export default function EditGoalPage() {
           )}
 
           <div className="flex gap-3 pt-2">
-            <button type="submit" disabled={isSubmitting}
-              className="btn-primary flex items-center gap-2 px-5 py-2.5">
+            <button type="submit" disabled={isSubmitting || isLocked}
+              className="btn-primary flex items-center gap-2 px-5 py-2.5"
+              style={isLocked ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}>
               <Save size={14} />
               {isSubmitting ? 'Saving…' : 'Save Changes'}
             </button>

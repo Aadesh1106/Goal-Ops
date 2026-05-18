@@ -127,19 +127,35 @@ BEGIN
   IF NEW.status = 'locked' AND OLD.status != 'locked' THEN
     NEW.locked_at = NOW();
   END IF;
-  -- Prevent editing locked goals (only admin can unlock via direct update)
-  -- Exception: Allow adjusting weightage of shared goals (title starting with '[Shared]')
-  IF OLD.status = 'locked' AND NEW.status = 'locked' THEN
-    IF OLD.title LIKE '[Shared]%' THEN
-      IF NEW.title != OLD.title OR NEW.target_value != OLD.target_value OR NEW.description != OLD.description OR NEW.thrust_area != OLD.thrust_area OR NEW.uom_type != OLD.uom_type THEN
-        RAISE EXCEPTION 'Cannot modify title or targets of a shared goal';
+
+  -- Lock mechanism: Prevent modifications on approved or locked goals
+  IF OLD.status IN ('approved', 'locked') THEN
+    -- Scenario A: Goal status remains approved/locked (internal modification attempt)
+    IF NEW.status IN ('approved', 'locked') THEN
+      -- Exception: Recipients of shared goals can adjust weightage only
+      IF OLD.title LIKE '[Shared]%' THEN
+        IF NEW.title != OLD.title OR NEW.target_value != OLD.target_value OR NEW.description != OLD.description OR NEW.thrust_area != OLD.thrust_area OR NEW.uom_type != OLD.uom_type THEN
+          RAISE EXCEPTION 'Cannot modify title or targets of a shared goal. Only weightage is adjustable.';
+        END IF;
+      ELSE
+        -- Normal goals: Block any modification attempt
+        IF NEW.title != OLD.title OR NEW.weightage != OLD.weightage OR NEW.target_value != OLD.target_value OR NEW.description != OLD.description OR NEW.thrust_area != OLD.thrust_area OR NEW.uom_type != OLD.uom_type THEN
+          RAISE EXCEPTION 'Cannot modify an approved or locked goal without Administrator intervention.';
+        END IF;
       END IF;
+    
+    -- Scenario B: Attempt to change goal status out of approved/locked (unlock bypass attempt)
+    -- Allow transitions ONLY if the actor is an Administrator
     ELSE
-      IF NEW.title != OLD.title OR NEW.weightage != OLD.weightage OR NEW.target_value != OLD.target_value OR NEW.description != OLD.description OR NEW.thrust_area != OLD.thrust_area OR NEW.uom_type != OLD.uom_type THEN
-        RAISE EXCEPTION 'Cannot modify a locked goal';
+      IF NOT EXISTS (
+        SELECT 1 FROM public.profiles 
+        WHERE id = auth.uid() AND role = 'admin'
+      ) THEN
+        RAISE EXCEPTION 'Goal is locked. Only platform Administrators are authorized to unlock approved or locked goals.';
       END IF;
     END IF;
   END IF;
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
