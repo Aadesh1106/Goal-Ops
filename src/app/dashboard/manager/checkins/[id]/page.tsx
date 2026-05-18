@@ -68,10 +68,25 @@ export default async function CheckinDetailPage({ params }: { params: Promise<{ 
               <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{employee?.designation}</p>
             </div>
           </div>
-
           <div className="mb-4">
             <h3 className="font-semibold text-base mb-1" style={{ color: 'var(--text-primary)' }}>{goal?.title}</h3>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Target: {goal?.target_value} {goal?.uom_type}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-xs font-semibold px-2 py-0.5 rounded uppercase tracking-wider"
+                style={{
+                  background: checkin.progress_status === 'Completed' ? 'rgba(16,185,129,0.1)' 
+                    : checkin.progress_status === 'On Track' ? 'rgba(59,130,246,0.1)' 
+                    : 'rgba(255,255,255,0.06)',
+                  color: checkin.progress_status === 'Completed' ? '#34d399' 
+                    : checkin.progress_status === 'On Track' ? '#60a5fa' 
+                    : 'var(--text-muted)',
+                  border: checkin.progress_status === 'Completed' ? '1px solid rgba(16,185,129,0.2)' 
+                    : checkin.progress_status === 'On Track' ? '1px solid rgba(59,130,246,0.2)' 
+                    : '1px solid rgba(255,255,255,0.1)'
+                }}>
+                {checkin.progress_status}
+              </span>
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>· Target: {goal?.target_value} ({goal?.uom_type})</span>
+            </div>
           </div>
 
           <div className="grid grid-cols-3 gap-3 mb-5 text-sm">

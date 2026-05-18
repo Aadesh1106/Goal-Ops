@@ -134,12 +134,11 @@ export default function EditGoalPage() {
             <div>
               <label className="form-label" htmlFor="edit-uom" style={isShared ? { opacity: 0.7 } : undefined}>Unit of Measurement</label>
               <select id="edit-uom" className="form-input" disabled={isShared} style={isShared ? { backgroundColor: 'var(--bg-elevated)', opacity: 0.7, cursor: 'not-allowed', pointerEvents: 'none' } : undefined} {...register('uom_type')}>
-                 <option value="percentage">Percentage (%)</option>
-                 <option value="number">Numeric</option>
-                 <option value="currency">Timeline (Days)</option>
-                 <option value="boolean">Zero-based (0 = Success)</option>
-                 <option value="rating">Rating (1–5)</option>
-               </select>
+                <option value="numeric_min">Numeric Min (Higher is Better)</option>
+                <option value="numeric_max">Numeric Max (Lower is Better)</option>
+                <option value="timeline">Timeline (Days - Lower is Better)</option>
+                <option value="zero_based">Zero-based (0 = Success)</option>
+              </select>
               {errors.uom_type && <p className="mt-1 text-xs" style={{ color: 'var(--status-error)' }}>{errors.uom_type.message}</p>}
             </div>
             <div>

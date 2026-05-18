@@ -1,0 +1,222 @@
+-- ============================================================
+-- GoalOps Enterprise — Supabase BRD Compliance Migration
+-- ============================================================
+
+-- Enable UUID extension if not already present
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Start Transaction
+BEGIN;
+
+-- ==========================================
+-- 1. Migrate Unit of Measurement (UoM) Enums
+-- ==========================================
+
+-- Create the new BRD-compliant UoM enum type
+CREATE TYPE uom_type_new AS ENUM ('numeric_min', 'numeric_max', 'timeline', 'zero_based');
+
+-- Remove default constraint from goals table temporarily
+ALTER TABLE goals ALTER COLUMN uom_type DROP DEFAULT;
+
+-- Alter goals to map the old values to the new ENUM values safely
+ALTER TABLE goals 
+  ALTER COLUMN uom_type TYPE uom_type_new 
+  USING (
+    CASE uom_type::text
+      WHEN 'percentage' THEN 'numeric_min'::uom_type_new
+      WHEN 'number' THEN 'numeric_min'::uom_type_new
+      WHEN 'currency' THEN 'numeric_max'::uom_type_new -- Max/cost: lower is better
+      WHEN 'boolean' THEN 'zero_based'::uom_type_new
+      WHEN 'rating' THEN 'numeric_min'::uom_type_new
+      ELSE 'numeric_min'::uom_type_new
+    END
+  );
+
+-- Drop the old enum type safely
+DROP TYPE IF EXISTS uom_type CASCADE;
+
+-- Rename the new type to the official uom_type name
+ALTER TYPE uom_type_new RENAME TO uom_type;
+
+-- Re-apply default constraint to goals table
+ALTER TABLE goals ALTER COLUMN uom_type SET DEFAULT 'numeric_min'::uom_type;
+
+
+-- ==========================================
+-- 2. Migrate Quarterly Checkins Schema
+-- ==========================================
+
+-- Drop the old generated progress_percentage column (so we can calculate it dynamically via triggers)
+ALTER TABLE quarterly_checkins DROP COLUMN IF EXISTS progress_percentage;
+
+-- Add progress_percentage as a standard smallint column with proper defaults
+ALTER TABLE quarterly_checkins ADD COLUMN progress_percentage SMALLINT NOT NULL DEFAULT 0;
+
+-- Create the new operational progress status enum
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'goal_progress_status') THEN
+    CREATE TYPE goal_progress_status AS ENUM ('Not Started', 'On Track', 'Completed');
+  END IF;
+END $$;
+
+-- Add progress_status column to quarterly_checkins
+ALTER TABLE quarterly_checkins ADD COLUMN progress_status goal_progress_status NOT NULL DEFAULT 'Not Started';
+
+
+-- ==========================================
+-- 3. Automated Progress Math Trigger
+-- ==========================================
+
+CREATE OR REPLACE FUNCTION calculate_progress_percentage()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_uom uom_type;
+BEGIN
+  -- Fetch the UoM Type from the related goal
+  SELECT uom_type INTO v_uom
+  FROM goals
+  WHERE id = NEW.goal_id;
+
+  -- Compute progress based on UoM Type
+  IF v_uom = 'zero_based' THEN
+    -- Zero-based: 0 means 100% success, any other value is 0% progress
+    IF NEW.actual_value = 0 THEN
+      NEW.progress_percentage := 100;
+    ELSE
+      NEW.progress_percentage := 0;
+    END IF;
+  ELSIF v_uom = 'numeric_max' THEN
+    -- Max-based (cost/timeline/defect rate - lower is better)
+    -- Formula: Target ÷ Achievement (capped at 100%)
+    IF NEW.actual_value <= 0 THEN
+      -- Handle division by zero or negative values safely
+      IF NEW.planned_value = 0 THEN
+        NEW.progress_percentage := 100;
+      ELSE
+        NEW.progress_percentage := 0;
+      END IF;
+    ELSE
+      NEW.progress_percentage := LEAST(ROUND((NEW.planned_value / NEW.actual_value) * 100)::INT, 100);
+    END IF;
+  ELSE
+    -- Min-based & Timeline-based (higher is better - achievement / target)
+    -- Formula: Achievement ÷ Target (capped at 100%)
+    IF NEW.planned_value = 0 THEN
+      IF NEW.actual_value >= 0 THEN
+        NEW.progress_percentage := 100;
+      ELSE
+        NEW.progress_percentage := 0;
+      END IF;
+    ELSE
+      NEW.progress_percentage := LEAST(ROUND((NEW.actual_value / NEW.planned_value) * 100)::INT, 100);
+    END IF;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Bind the progress calculation trigger to quarterly_checkins
+DROP TRIGGER IF EXISTS trg_calculate_progress_percentage ON quarterly_checkins;
+CREATE TRIGGER trg_calculate_progress_percentage
+  BEFORE INSERT OR UPDATE ON quarterly_checkins
+  FOR EACH ROW EXECUTE FUNCTION calculate_progress_percentage();
+
+
+-- ==========================================
+-- 4. Enforce 100% Total Weightage on Submission
+-- ==========================================
+
+CREATE OR REPLACE FUNCTION verify_submission_weightage()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_total_weightage INT;
+BEGIN
+  -- Run check only when an employee submits their goal sheet for review
+  IF NEW.status = 'submitted' AND OLD.status != 'submitted' THEN
+    SELECT COALESCE(SUM(weightage), 0) INTO v_total_weightage
+    FROM goals
+    WHERE employee_id = NEW.employee_id 
+      AND cycle_year = NEW.cycle_year 
+      AND status != 'rejected';
+
+    -- Since the current row update is in flight, its new status is being committed.
+    -- If total is not 100%, raise an exception and rollback.
+    IF v_total_weightage != 100 THEN
+      RAISE EXCEPTION 'Cannot submit goal sheet. Total weightage of active goals must equal exactly 100%%. Current total: % %%', v_total_weightage;
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Bind the weightage verification trigger to goals
+DROP TRIGGER IF EXISTS trg_verify_submission_weightage ON goals;
+CREATE TRIGGER trg_verify_submission_weightage
+  BEFORE UPDATE ON goals
+  FOR EACH ROW EXECUTE FUNCTION verify_submission_weightage();
+
+
+-- ==========================================
+-- 5. Cascade Synchronization for Shared Goals
+-- ==========================================
+
+CREATE OR REPLACE FUNCTION sync_shared_goal_achievements()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_title TEXT;
+  v_shared_title TEXT;
+BEGIN
+  -- Get the title of the goal being updated
+  SELECT title INTO v_title FROM goals WHERE id = NEW.goal_id;
+
+  -- Only synchronize if this is a primary manager goal
+  IF v_title LIKE '[Manager KPI]%' THEN
+    v_shared_title := replace(v_title, '[Manager KPI]', '[Shared]');
+
+    -- Check if metrics changed
+    IF (TG_OP = 'INSERT') OR (OLD.actual_value IS DISTINCT FROM NEW.actual_value) OR (OLD.planned_value IS DISTINCT FROM NEW.planned_value) THEN
+      
+      -- 1. Perform update on existing check-ins of the shared recipient goals
+      UPDATE quarterly_checkins
+      SET 
+        actual_value = NEW.actual_value,
+        planned_value = NEW.planned_value,
+        progress_status = NEW.progress_status,
+        updated_at = NOW()
+      WHERE quarter = NEW.quarter 
+        AND cycle_year = NEW.cycle_year
+        AND goal_id IN (
+          SELECT g.id 
+          FROM goals g
+          JOIN shared_goals sg ON sg.shared_with_employee_id = g.employee_id
+          WHERE sg.primary_goal_id = NEW.goal_id
+            AND g.title = v_shared_title
+        );
+
+      -- 2. If any recipient does not have a check-in record for this quarter yet, automatically insert it
+      INSERT INTO quarterly_checkins (goal_id, employee_id, quarter, cycle_year, planned_value, actual_value, progress_status, status)
+      SELECT g.id, g.employee_id, NEW.quarter, NEW.cycle_year, NEW.planned_value, NEW.actual_value, NEW.progress_status, 'submitted'
+      FROM goals g
+      JOIN shared_goals sg ON sg.shared_with_employee_id = g.employee_id
+      WHERE sg.primary_goal_id = NEW.goal_id
+        AND g.title = v_shared_title
+        AND NOT EXISTS (
+          SELECT 1 FROM quarterly_checkins qc 
+          WHERE qc.goal_id = g.id AND qc.quarter = NEW.quarter AND qc.cycle_year = NEW.cycle_year
+        );
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Bind the shared goals sync trigger to quarterly_checkins
+DROP TRIGGER IF EXISTS trg_sync_shared_goals ON quarterly_checkins;
+CREATE TRIGGER trg_sync_shared_goals
+  AFTER INSERT OR UPDATE ON quarterly_checkins
+  FOR EACH ROW EXECUTE FUNCTION sync_shared_goal_achievements();
+
+-- Commit transaction
+COMMIT;

@@ -214,10 +214,10 @@ export default async function ManagerDashboardPage() {
                 <div>
                   <label className="form-label text-xs">Unit of Measurement (UoM)</label>
                   <select name="uomType" className="form-input text-xs py-2" required>
-                    <option value="percentage">Percentage (%)</option>
-                    <option value="number">Numeric</option>
-                    <option value="currency">Timeline (Days)</option>
-                    <option value="boolean">Zero-based (0 = Success)</option>
+                    <option value="numeric_min">Numeric Min (Higher is Better)</option>
+                    <option value="numeric_max">Numeric Max (Lower is Better)</option>
+                    <option value="timeline">Timeline (Days - Lower is Better)</option>
+                    <option value="zero_based">Zero-based (0 = Success)</option>
                   </select>
                 </div>
               </div>

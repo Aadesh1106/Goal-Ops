@@ -112,79 +112,37 @@ export default async function EmployeeCheckinsPage() {
                   <Badge variant={c.status === 'reviewed' ? 'approved' : c.status === 'submitted' ? 'submitted' : 'draft'} dot>
                     {c.status}
                   </Badge>
+                  <span className="text-xs px-2 py-0.5 rounded font-semibold uppercase tracking-wider"
+                    style={{
+                      background: c.progress_status === 'Completed' ? 'rgba(16,185,129,0.1)' 
+                        : c.progress_status === 'On Track' ? 'rgba(59,130,246,0.1)' 
+                        : 'rgba(255,255,255,0.06)',
+                      color: c.progress_status === 'Completed' ? '#34d399' 
+                        : c.progress_status === 'On Track' ? '#60a5fa' 
+                        : 'var(--text-muted)',
+                      border: c.progress_status === 'Completed' ? '1px solid rgba(16,185,129,0.2)' 
+                        : c.progress_status === 'On Track' ? '1px solid rgba(59,130,246,0.2)' 
+                        : '1px solid rgba(255,255,255,0.1)'
+                    }}>
+                    {c.progress_status}
+                  </span>
                 </div>
-                {(() => {
-                  const uom = c.goals?.uom_type;
-                  const target = c.goals?.target_value ?? 0;
-                  const actual = c.actual_value ?? 0;
-                  const planned = c.planned_value ?? 0;
-                  
-                  let progress = 0;
-                  if (planned > 0) {
-                    if (uom === 'currency') { // Timeline / Cost (lower is better)
-                      progress = actual > 0 ? Math.min(Math.round((planned / actual) * 100), 100) : 0;
-                    } else if (uom === 'boolean') { // Zero-based (0 = Success)
-                      progress = actual === 0 ? 100 : 0;
-                    } else { // Min (higher is better)
-                      progress = Math.min(Math.round((actual / planned) * 100), 100);
-                    }
-                  }
-                  
-                  const uomLabel = uom === 'percentage' ? '%' 
-                    : uom === 'number' ? 'Numeric' 
-                    : uom === 'currency' ? 'Days (Timeline)' 
-                    : uom === 'boolean' ? 'Zero-based' 
-                    : uom;
-
-                  return (
-                    <>
-                      <div className="font-bold text-lg" style={{ color: progress >= 100 ? 'var(--status-success)' : 'var(--text-primary)' }}>
-                        {progress}%
-                      </div>
-                    </>
-                  );
-                })()}
+                <div className="font-bold text-lg" style={{ color: c.progress_percentage >= 100 ? 'var(--status-success)' : 'var(--text-primary)' }}>
+                  {c.progress_percentage}%
+                </div>
               </div>
 
               <div className="mb-4">
                 <p className="font-medium text-sm mb-1" style={{ color: 'var(--text-primary)' }}>
                   {c.goals?.title}
                 </p>
-                {(() => {
-                  const uom = c.goals?.uom_type;
-                  const target = c.goals?.target_value ?? 0;
-                  const actual = c.actual_value ?? 0;
-                  const planned = c.planned_value ?? 0;
-                  
-                  let progress = 0;
-                  if (planned > 0) {
-                    if (uom === 'currency') {
-                      progress = actual > 0 ? Math.min(Math.round((planned / actual) * 100), 100) : 0;
-                    } else if (uom === 'boolean') {
-                      progress = actual === 0 ? 100 : 0;
-                    } else {
-                      progress = Math.min(Math.round((actual / planned) * 100), 100);
-                    }
-                  }
-                  
-                  const uomLabel = uom === 'percentage' ? '%' 
-                    : uom === 'number' ? 'Numeric' 
-                    : uom === 'currency' ? 'Days' 
-                    : uom === 'boolean' ? 'Zero-based' 
-                    : uom;
-
-                  return (
-                    <>
-                      <div className="progress-bar h-1.5 mb-1.5">
-                        <div className="progress-fill h-1.5" style={{ width: `${progress}%` }} />
-                      </div>
-                      <div className="flex justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
-                        <span>Planned: {c.planned_value} {uomLabel}</span>
-                        <span>Actual: <strong>{c.actual_value}</strong> {uomLabel}</span>
-                      </div>
-                    </>
-                  );
-                })()}
+                <div className="progress-bar h-1.5 mb-1.5">
+                  <div className="progress-fill h-1.5" style={{ width: `${c.progress_percentage}%` }} />
+                </div>
+                <div className="flex justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
+                  <span>Planned: {c.planned_value} ({c.goals?.uom_type})</span>
+                  <span>Actual: <strong>{c.actual_value}</strong> ({c.goals?.uom_type})</span>
+                </div>
               </div>
 
               {c.employee_remarks && (

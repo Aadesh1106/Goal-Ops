@@ -21,11 +21,10 @@ export type EscalationStatus = 'open' | 'acknowledged' | 'resolved';
 export type Quarter = 'Q1' | 'Q2' | 'Q3' | 'Q4';
 
 export type UoMType =
-  | 'percentage'
-  | 'number'
-  | 'currency'
-  | 'boolean'
-  | 'rating';
+  | 'numeric_min'
+  | 'numeric_max'
+  | 'timeline'
+  | 'zero_based';
 
 export type AuditAction =
   | 'goal_created'
@@ -112,6 +111,7 @@ export interface QuarterlyCheckin {
   planned_value: number;
   actual_value: number;
   progress_percentage: number;
+  progress_status: 'Not Started' | 'On Track' | 'Completed';
   employee_remarks: string | null;
   manager_remarks: string | null;
   status: 'pending' | 'submitted' | 'reviewed';
@@ -129,6 +129,7 @@ export interface CreateCheckinPayload {
   cycle_year: number;
   planned_value: number;
   actual_value: number;
+  progress_status: 'Not Started' | 'On Track' | 'Completed';
   employee_remarks?: string;
 }
 
@@ -271,11 +272,10 @@ export const CURRENT_CYCLE_YEAR = new Date().getFullYear();
 export const QUARTERS: Quarter[] = ['Q1', 'Q2', 'Q3', 'Q4'];
 
 export const UOM_LABELS: Record<UoMType, string> = {
-  percentage: 'Percentage (%)',
-  number: 'Number',
-  currency: 'Currency (₹)',
-  boolean: 'Yes / No',
-  rating: 'Rating (1–5)',
+  numeric_min: 'Numeric Min (Higher is Better)',
+  numeric_max: 'Numeric Max (Lower is Better)',
+  timeline: 'Timeline (Days - Lower is Better)',
+  zero_based: 'Zero-based (0 = Success)',
 };
 
 export const STATUS_LABELS: Record<GoalStatus, string> = {

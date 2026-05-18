@@ -13,7 +13,7 @@ export async function GET() {
   }
 
   // Construct CSV string
-  const headers = ['Employee Name', 'Employee Code', 'Department', 'Goal Title', 'Quarter', 'UoM', 'Planned Target', 'Actual Achievement', 'Progress %'];
+  const headers = ['Employee Name', 'Employee Code', 'Department', 'Goal Title', 'Quarter', 'UoM', 'Planned Target', 'Actual Achievement', 'Progress %', 'Progress Status'];
   const rows = checkins.map((c: any) => [
     c.profiles?.full_name ?? '',
     c.profiles?.employee_code ?? '',
@@ -24,6 +24,7 @@ export async function GET() {
     c.planned_value ?? 0,
     c.actual_value ?? 0,
     c.progress_percentage ?? 0,
+    c.progress_status ?? 'Not Started',
   ]);
 
   const csvContent = [headers, ...rows]

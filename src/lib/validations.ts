@@ -14,7 +14,7 @@ export const createGoalSchema = z.object({
     .string()
     .min(10, 'Description must be at least 10 characters')
     .max(500, 'Description must be under 500 characters'),
-  uom_type: z.enum(['percentage', 'number', 'currency', 'boolean', 'rating'], {
+  uom_type: z.enum(['numeric_min', 'numeric_max', 'timeline', 'zero_based'], {
     error: 'Select a valid unit of measurement',
   }),
   target_value: z
@@ -41,6 +41,9 @@ export const createCheckinSchema = z.object({
   cycle_year: z.number().int().min(2020).max(2100),
   planned_value: z.number({ error: 'Planned value must be a number' }),
   actual_value: z.number({ error: 'Actual value must be a number' }),
+  progress_status: z.enum(['Not Started', 'On Track', 'Completed'], {
+    error: 'Select an operational progress status',
+  }),
   employee_remarks: z.string().max(500).optional(),
 });
 

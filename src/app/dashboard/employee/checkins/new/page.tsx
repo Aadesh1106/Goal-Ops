@@ -51,15 +51,11 @@ export default function NewCheckinPage() {
     fetchGoals();
   }, []);
 
-  const [goalStatus, setGoalStatus] = useState('On Track');
-
   const onSubmit = async (values: CreateCheckinFormValues) => {
     setServerError(null);
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push('/auth/login'); return; }
-
-    const remarksWithStatus = `[Status: ${goalStatus}] ${values.employee_remarks || ''}`.trim();
 
     const { error } = await supabase.from('quarterly_checkins').insert({
       employee_id: user.id,
@@ -68,7 +64,8 @@ export default function NewCheckinPage() {
       cycle_year: values.cycle_year,
       planned_value: values.planned_value,
       actual_value: values.actual_value,
-      employee_remarks: remarksWithStatus || null,
+      progress_status: values.progress_status,
+      employee_remarks: values.employee_remarks || null,
       status: 'submitted',
       submitted_at: new Date().toISOString()
     });
@@ -162,12 +159,14 @@ export default function NewCheckinPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="form-label" htmlFor="goal_status">Current Progress Status</label>
-                <select id="goal_status" className="form-input" value={goalStatus} onChange={(e) => setGoalStatus(e.target.value)}>
+                <label className="form-label" htmlFor="progress_status">Current Progress Status</label>
+                <select id="progress_status" className="form-input" {...register('progress_status')}>
+                  <option value="">Select status…</option>
                   <option value="Not Started">Not Started</option>
                   <option value="On Track">On Track</option>
                   <option value="Completed">Completed</option>
                 </select>
+                {errors.progress_status && <p className="mt-1 text-xs" style={{ color: 'var(--status-error)' }}>{errors.progress_status.message}</p>}
               </div>
             </div>
 
