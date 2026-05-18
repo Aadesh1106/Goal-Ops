@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { PageHeader, KpiCard } from '@/components/layout/DashboardShell';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { ClipboardList, Plus, TrendingUp, AlertTriangle } from 'lucide-react';
+import { ClipboardList, Plus, TrendingUp, AlertTriangle, Calendar } from 'lucide-react';
 import { QUARTERS } from '@/lib/constants';
+import { getActiveWindow, getWindowDescription } from '@/lib/scheduler';
 
 export const metadata = { title: 'Check-ins | GoalOps Enterprise' };
 
@@ -33,6 +34,10 @@ export default async function EmployeeCheckinsPage() {
     .select('status')
     .eq('employee_id', user.id);
 
+  // Check-in Scheduler integration
+  const { activeWindow, isOverride } = await getActiveWindow();
+  const isCheckinWindowOpen = activeWindow !== null && activeWindow !== 'goal_setting';
+
   const canAddCheckin = (activeGoals?.length ?? 0) > 0;
   const hasGoals = (allGoals?.length ?? 0) > 0;
   const isPendingApproval = hasGoals && !canAddCheckin;
@@ -43,16 +48,43 @@ export default async function EmployeeCheckinsPage() {
         title="Quarterly Check-ins"
         subtitle="Track and submit your progress for each quarter"
         action={
-          canAddCheckin ? (
+          canAddCheckin && isCheckinWindowOpen ? (
             <Link href="/dashboard/employee/checkins/new"
               className="btn-primary flex items-center gap-2 text-sm px-4 py-2">
               <Plus size={15} /> Log Check-in
             </Link>
-          ) : null
+          ) : (
+            <button disabled className="btn-secondary flex items-center gap-2 text-sm px-4 py-2 cursor-not-allowed opacity-50">
+              <Calendar size={15} /> Window Closed
+            </button>
+          )
         }
       />
 
       {/* Dynamic State Helpers */}
+      <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl border animate-in fade-in duration-300"
+        style={{
+          background: isCheckinWindowOpen ? 'rgba(16,185,129,0.03)' : 'rgba(239,68,68,0.03)',
+          borderColor: isCheckinWindowOpen ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'
+        }}>
+        <div className="flex items-start gap-3">
+          <Calendar size={20} className="shrink-0 mt-0.5" 
+            style={{ color: isCheckinWindowOpen ? '#34d399' : '#f87171' }} />
+          <div>
+            <h4 className="font-bold text-white text-sm mb-0.5">
+              {isCheckinWindowOpen 
+                ? `Active Tracking Window: Q${activeWindow?.slice(1)}` 
+                : 'Quarterly Check-in Window Closed'}
+              {isOverride && <span className="ml-2 text-xs px-2 py-0.5 bg-indigo-500/20 text-indigo-400 rounded-full border border-indigo-500/30">Admin Override</span>}
+            </h4>
+            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+              {isCheckinWindowOpen
+                ? `The operational progress window is open. You can log performance achievements for ${getWindowDescription(activeWindow)}.`
+                : `Performance check-ins are restricted outside operational tracking cycles. The current active period is: ${getWindowDescription(activeWindow)}.`}
+            </p>
+          </div>
+        </div>
+      </div>
       {!hasGoals && (
         <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl border"
           style={{ background: 'rgba(99,102,241,0.03)', borderColor: 'rgba(99,102,241,0.15)' }}>

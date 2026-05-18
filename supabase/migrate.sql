@@ -218,5 +218,105 @@ CREATE TRIGGER trg_sync_shared_goals
   AFTER INSERT OR UPDATE ON quarterly_checkins
   FOR EACH ROW EXECUTE FUNCTION sync_shared_goal_achievements();
 
+-- ==========================================
+-- 6. Check-in Scheduler Table & Default Settings
+-- ==========================================
+CREATE TABLE IF NOT EXISTS app_settings (
+  key TEXT PRIMARY KEY,
+  value JSONB NOT NULL
+);
+INSERT INTO app_settings (key, value) 
+VALUES ('window_override', '{"active_window": null}'::jsonb)
+ON CONFLICT (key) DO NOTHING;
+
+-- ==========================================
+-- 7. Automated Audit Log Triggers
+-- ==========================================
+CREATE OR REPLACE FUNCTION audit_goal_changes()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_actor UUID;
+  v_action audit_action;
+BEGIN
+  -- Determine who is making the change (fallback to system or employee if auth.uid() is null)
+  v_actor := COALESCE(auth.uid(), NEW.employee_id, OLD.employee_id);
+  
+  -- Determine the action
+  IF TG_OP = 'INSERT' THEN
+    v_action := 'goal_created';
+  ELSIF TG_OP = 'UPDATE' THEN
+    IF OLD.status != NEW.status THEN
+      CASE NEW.status
+        WHEN 'submitted' THEN v_action := 'goal_submitted';
+        WHEN 'approved' THEN v_action := 'goal_approved';
+        WHEN 'rejected' THEN v_action := 'goal_rejected';
+        WHEN 'locked' THEN v_action := 'goal_locked';
+        ELSE v_action := 'goal_updated';
+      END CASE;
+    ELSE
+      v_action := 'goal_updated';
+    END IF;
+  ELSE
+    -- DELETE
+    v_action := 'goal_updated'; -- fallback or general
+  END IF;
+
+  INSERT INTO audit_logs (actor_id, entity_type, entity_id, action, before_state, after_state, metadata)
+  VALUES (
+    v_actor,
+    'goal',
+    COALESCE(NEW.id, OLD.id),
+    v_action,
+    CASE WHEN TG_OP = 'INSERT' THEN NULL ELSE to_jsonb(OLD) END,
+    CASE WHEN TG_OP = 'DELETE' THEN NULL ELSE to_jsonb(NEW) END,
+    jsonb_build_object('operation', TG_OP, 'timestamp', NOW())
+  );
+
+  RETURN COALESCE(NEW, OLD);
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_audit_goal_changes ON goals;
+CREATE TRIGGER trg_audit_goal_changes
+  AFTER INSERT OR UPDATE OR DELETE ON goals
+  FOR EACH ROW EXECUTE FUNCTION audit_goal_changes();
+
+
+CREATE OR REPLACE FUNCTION audit_checkin_changes()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_actor UUID;
+  v_action audit_action;
+BEGIN
+  v_actor := COALESCE(auth.uid(), NEW.employee_id, OLD.employee_id);
+  
+  IF TG_OP = 'INSERT' THEN
+    v_action := 'checkin_created';
+  ELSIF TG_OP = 'UPDATE' THEN
+    v_action := 'checkin_updated';
+  ELSE
+    v_action := 'checkin_updated';
+  END IF;
+
+  INSERT INTO audit_logs (actor_id, entity_type, entity_id, action, before_state, after_state, metadata)
+  VALUES (
+    v_actor,
+    'checkin',
+    COALESCE(NEW.id, OLD.id),
+    v_action,
+    CASE WHEN TG_OP = 'INSERT' THEN NULL ELSE to_jsonb(OLD) END,
+    CASE WHEN TG_OP = 'DELETE' THEN NULL ELSE to_jsonb(NEW) END,
+    jsonb_build_object('operation', TG_OP, 'quarter', COALESCE(NEW.quarter, OLD.quarter))
+  );
+
+  RETURN COALESCE(NEW, OLD);
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_audit_checkin_changes ON quarterly_checkins;
+CREATE TRIGGER trg_audit_checkin_changes
+  AFTER INSERT OR UPDATE OR DELETE ON quarterly_checkins
+  FOR EACH ROW EXECUTE FUNCTION audit_checkin_changes();
+
 -- Commit transaction
 COMMIT;
