@@ -12,56 +12,88 @@ BEGIN;
 -- 1. Migrate Unit of Measurement (UoM) Enums
 -- ==========================================
 
--- Create the new BRD-compliant UoM enum type
-CREATE TYPE uom_type_new AS ENUM ('numeric_min', 'numeric_max', 'timeline', 'zero_based');
-
--- Remove default constraint from goals table temporarily
-ALTER TABLE goals ALTER COLUMN uom_type DROP DEFAULT;
-
--- Alter goals to map the old values to the new ENUM values safely
-ALTER TABLE goals 
-  ALTER COLUMN uom_type TYPE uom_type_new 
-  USING (
-    CASE uom_type::text
-      WHEN 'percentage' THEN 'numeric_min'::uom_type_new
-      WHEN 'number' THEN 'numeric_min'::uom_type_new
-      WHEN 'currency' THEN 'numeric_max'::uom_type_new -- Max/cost: lower is better
-      WHEN 'boolean' THEN 'zero_based'::uom_type_new
-      WHEN 'rating' THEN 'numeric_min'::uom_type_new
-      ELSE 'numeric_min'::uom_type_new
-    END
-  );
-
--- Drop the old enum type safely
-DROP TYPE IF EXISTS uom_type CASCADE;
-
--- Rename the new type to the official uom_type name
-ALTER TYPE uom_type_new RENAME TO uom_type;
-
--- Re-apply default constraint to goals table
-ALTER TABLE goals ALTER COLUMN uom_type SET DEFAULT 'numeric_min'::uom_type;
-
-
--- ==========================================
--- 2. Migrate Quarterly Checkins Schema
--- ==========================================
-
--- Drop the old generated progress_percentage column (so we can calculate it dynamically via triggers)
-ALTER TABLE quarterly_checkins DROP COLUMN IF EXISTS progress_percentage;
-
--- Add progress_percentage as a standard smallint column with proper defaults
-ALTER TABLE quarterly_checkins ADD COLUMN progress_percentage SMALLINT NOT NULL DEFAULT 0;
-
--- Create the new operational progress status enum
-DO $$ 
+-- 1. Migrate Unit of Measurement (UoM) Enums (Idempotent Check)
+DO $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'goal_progress_status') THEN
-    CREATE TYPE goal_progress_status AS ENUM ('Not Started', 'On Track', 'Completed');
+  IF EXISTS (
+    SELECT 1 
+    FROM pg_type t 
+    JOIN pg_enum e ON t.oid = e.enumtypid 
+    WHERE t.typname = 'uom_type' AND e.enumlabel = 'numeric_min'
+  ) THEN
+    RAISE NOTICE 'UoM enum already migrated. Skipping...';
+  ELSE
+    -- Create the new BRD-compliant UoM enum type
+    CREATE TYPE uom_type_new AS ENUM ('numeric_min', 'numeric_max', 'timeline', 'zero_based');
+
+    -- Remove default constraint from goals table temporarily
+    ALTER TABLE goals ALTER COLUMN uom_type DROP DEFAULT;
+
+    -- Alter goals to map the old values to the new ENUM values safely
+    ALTER TABLE goals 
+      ALTER COLUMN uom_type TYPE uom_type_new 
+      USING (
+        CASE uom_type::text
+          WHEN 'percentage' THEN 'numeric_min'::uom_type_new
+          WHEN 'number' THEN 'numeric_min'::uom_type_new
+          WHEN 'currency' THEN 'numeric_max'::uom_type_new
+          WHEN 'boolean' THEN 'zero_based'::uom_type_new
+          WHEN 'rating' THEN 'numeric_min'::uom_type_new
+          ELSE 'numeric_min'::uom_type_new
+        END
+      );
+
+    -- Drop the old enum type safely
+    DROP TYPE IF EXISTS uom_type CASCADE;
+
+    -- Rename the new type to the official uom_type name
+    ALTER TYPE uom_type_new RENAME TO uom_type;
+
+    -- Re-apply default constraint to goals table
+    ALTER TABLE goals ALTER COLUMN uom_type SET DEFAULT 'numeric_min'::uom_type;
   END IF;
 END $$;
 
--- Add progress_status column to quarterly_checkins
-ALTER TABLE quarterly_checkins ADD COLUMN progress_status goal_progress_status NOT NULL DEFAULT 'Not Started';
+
+-- ==========================================
+-- 2. Migrate Quarterly Checkins Schema (Idempotent Check)
+-- ==========================================
+DO $$
+BEGIN
+  -- Check if progress_percentage is generated and drop it if so
+  IF EXISTS (
+    SELECT 1 
+    FROM information_schema.columns 
+    WHERE table_name='quarterly_checkins' 
+      AND column_name='progress_percentage' 
+      AND is_generated='ALWAYS'
+  ) THEN
+    ALTER TABLE quarterly_checkins DROP COLUMN progress_percentage;
+  END IF;
+
+  -- Check if progress_percentage exists at all as a column
+  IF NOT EXISTS (
+    SELECT 1 
+    FROM information_schema.columns 
+    WHERE table_name='quarterly_checkins' AND column_name='progress_percentage'
+  ) THEN
+    ALTER TABLE quarterly_checkins ADD COLUMN progress_percentage SMALLINT NOT NULL DEFAULT 0;
+  END IF;
+
+  -- Create progress status enum type if missing
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'goal_progress_status') THEN
+    CREATE TYPE goal_progress_status AS ENUM ('Not Started', 'On Track', 'Completed');
+  END IF;
+
+  -- Add progress_status column if it does not exist
+  IF NOT EXISTS (
+    SELECT 1 
+    FROM information_schema.columns 
+    WHERE table_name='quarterly_checkins' AND column_name='progress_status'
+  ) THEN
+    ALTER TABLE quarterly_checkins ADD COLUMN progress_status goal_progress_status NOT NULL DEFAULT 'Not Started';
+  END IF;
+END $$;
 
 
 -- ==========================================
