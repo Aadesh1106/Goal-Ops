@@ -120,32 +120,42 @@ export default async function AdminDashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/auth/login');
 
-  // Load scheduler config
-  const { activeWindow, isOverride } = await getActiveWindow();
-
-  // Platform-wide metrics
+  // Load scheduler config and execute all database queries concurrently (eliminating request waterfalls)
   const [
+    schedulerConfig,
     { count: totalUsers },
     { count: totalGoals },
     { count: pendingApprovals },
     { count: openEscalations },
+    recentLogsRes,
+    profilesRes,
+    goalsRes,
+    lockedGoalsRes
   ] = await Promise.all([
+    getActiveWindow(),
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase.from('goals').select('*', { count: 'exact', head: true }),
     supabase.from('goals').select('*', { count: 'exact', head: true }).eq('status', 'submitted'),
     supabase.from('escalations').select('*', { count: 'exact', head: true }).eq('status', 'open'),
+    supabase
+      .from('audit_logs')
+      .select('id, action, entity_type, created_at, profiles(full_name)')
+      .order('created_at', { ascending: false })
+      .limit(6),
+    supabase.from('profiles').select('id, department'),
+    supabase.from('goals').select('id, status, employee_id'),
+    supabase
+      .from('goals')
+      .select('id, title, status, profiles!goals_employee_id_fkey(full_name, employee_code)')
+      .in('status', ['approved', 'locked'])
+      .limit(5)
   ]);
 
-  // Recent audit logs
-  const { data: recentLogs } = await supabase
-    .from('audit_logs')
-    .select('id, action, entity_type, created_at, profiles(full_name)')
-    .order('created_at', { ascending: false })
-    .limit(6);
-
-  // Calculate department metrics
-  const { data: profiles } = await supabase.from('profiles').select('id, department');
-  const { data: goals } = await supabase.from('goals').select('id, status, employee_id');
+  const { activeWindow, isOverride } = schedulerConfig;
+  const recentLogs = recentLogsRes.data;
+  const profiles = profilesRes.data;
+  const goals = goalsRes.data;
+  const lockedGoals = lockedGoalsRes.data;
 
   const deptData = Array.from(new Set(profiles?.map(p => p.department) || [])).map(dept => {
     const empIds = profiles?.filter(p => p.department === dept).map(p => p.id) || [];
@@ -154,12 +164,6 @@ export default async function AdminDashboardPage() {
     const completion = deptGoals.length > 0 ? Math.round((completed / deptGoals.length) * 100) : 0;
     return { department: dept, completion };
   });
-
-  const { data: lockedGoals } = await supabase
-    .from('goals')
-    .select('id, title, status, profiles!goals_employee_id_fkey(full_name, employee_code)')
-    .in('status', ['approved', 'locked'])
-    .limit(5);
 
   return (
     <div>

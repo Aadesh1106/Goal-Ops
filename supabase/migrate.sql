@@ -353,5 +353,13 @@ CREATE TRIGGER trg_audit_checkin_changes
   AFTER INSERT OR UPDATE OR DELETE ON quarterly_checkins
   FOR EACH ROW EXECUTE FUNCTION audit_checkin_changes();
 
+-- ==========================================
+-- 8. High-Performance Database Indexes
+-- ==========================================
+CREATE INDEX IF NOT EXISTS idx_goals_status ON public.goals (status);
+CREATE INDEX IF NOT EXISTS idx_goals_employee_cycle ON public.goals (employee_id, cycle_year);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON public.audit_logs (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_profiles_department ON public.profiles (department) WHERE is_active = true;
+
 -- Commit transaction
 COMMIT;
