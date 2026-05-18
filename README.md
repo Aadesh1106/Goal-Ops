@@ -188,21 +188,22 @@ Judges can explore the complete application flow using these pre-configured or d
 
 ### 👤 Employee Personas
 
-| Employee Name | Work Email | Default Password | Goals Configured | Weightage Used | Weightage Space Left | Persona / Demo Purpose |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Arun** | `arun@hpcl.com` | `password123` | 5 Goals | **100%** | **0%** | **Compliant Sheet**: Locked and approved. Ideal for testing quarterly progress tracking, check-ins, or HR reopening control. |
-| **google** | `google@google.com` | `password123` | 4 Goals | **100%** | **0%** | **Compliant Sheet**: Fully configured and approved. |
-| **Roshan** | `rosejacktitanic648@gmail.com` | `password123` | 1 Goal | **40%** | **60%** | **Draft Sheet**: Edit goal weights, add new goals, and submit to manager. |
-| **Varun** | `varun@hpcl.com` | `password123` | 1 Goal | **12%** | **88%** | **Draft Sheet**: Edit goal weights, add new goals, and submit to manager. |
-| **Aravind** | `aravind@hpcl.com` | `password123` | 0 Goals | **0%** | **100%** | **Empty Sheet**: Great for showing the complete end-to-end goal creation wizard from scratch. |
-| **Anto** | `rosejacktitanic2001@gmail.com` | `password123` | 0 Goals | **0%** | **100%** | **Empty Sheet**: Sandbox for complete end-to-end creation. |
+| Employee Name | Work Email | Default Password | Goals Configured | Weightage Used | Persona / Demo Purpose |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Rohan Tester** | `rohan@hpcl.com` | `password123` | 2 Goals | **100%** | **Locked Sheet**: Fully approved goals. Ideal for testing quarterly progress check-ins. |
+| **Rohan Test New** | `rohan_test_new@hpcl.com` | `password123` | 3 Goals | **100%** | **Submitted Sheet**: Awaiting manager approval. Test L1 Manager rejection/approval flows. |
+| **Arun** | `arun@hpcl.com` | `password123` | 6 Goals | **110%** | **Invalid Draft**: Over 100% weightage limit. Reduce weightages before submission. |
+| **google** | `google@google.com` | `password123` | 6 Goals | **90%** | **Incomplete Draft**: Needs exactly 10% more weightage to unlock the submission button. |
+| **Roshan** | `rosejacktitanic648@gmail.com` | `password123` | 2 Goals | **50%** | **Draft Sheet**: Edit goal weights, add new goals, and submit to manager. |
+| **N Aadesh** | `aadeshn45@gmail.com` | `password123` | 1 Goal | **10%** | **Approved Sheet**: Early approval test. |
 
 ### 👥 Manager (L1) Personas
 * **Responsibilities:** Manage approvals, modify direct reports' targets/weightages inline, enter comments, push shared departmental KPIs.
 * **Sarah Manager (General Dept):** `manager@hpcl.com` | `password123`
-* **Bob Manager (Engineering Dept):** `bobmanager@hpcl.com` | `password123`
+* **Bob Manager (Engineering Dept):** `bob.manager.test@gmail.com` | `password123`
+* **Bob Manager Two (Engineering Dept):** `bob.manager.test2@gmail.com` | `password123`
 
-> ⚙️ **Dynamic Hierarchy:** When a new employee registers or logs in via SSO, GoalOps automatically routes them to the correct manager within their designated department (e.g., Engineering employees are automatically assigned to Bob Manager).
+> ⚙️ **Dynamic Hierarchy:** When a new employee registers or logs in via SSO, GoalOps automatically routes them to the correct manager within their designated department (e.g., Engineering employees like Rohan are assigned to Bob Manager).
 
 ### 👑 Admin / HR Persona
 * **Responsibilities:** Lock bypass override control, cycles view, CSV exports, SLA escalation panels.
