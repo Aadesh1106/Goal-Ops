@@ -1,13 +1,7 @@
-'use client';
-
-import { useState } from 'react';
 import Link from 'next/link';
-import { Target, Users, Shield, AlertTriangle } from 'lucide-react';
 import { APP_NAME, APP_TAGLINE } from '@/lib/constants';
 
 export default function LandingPage() {
-  const [activeTab, setActiveTab] = useState<'employee' | 'manager' | 'admin'>('employee');
-
   return (
     <main className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: '#f8fafc' }}>
       
@@ -41,7 +35,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="flex-1 flex flex-col items-center justify-center px-6 py-20 text-center relative z-10">
+      <section className="flex-1 flex flex-col items-center justify-center px-6 py-24 text-center relative z-10">
         {/* Pill badge */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-8"
           style={{ background: 'rgba(99,102,241,0.08)', color: '#4f46e5', border: '1px solid rgba(99,102,241,0.15)' }}>
@@ -84,184 +78,6 @@ export default function LandingPage() {
               <div className="text-xs text-slate-500">{s.label}</div>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* Interactive Platform Preview Console */}
-      <section className="px-8 py-12 max-w-5xl mx-auto w-full relative z-10">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-3 text-slate-900">
-            Experience the <span className="gradient-text" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>GoalOps Ecosystem</span>
-          </h2>
-          <p className="text-sm text-slate-500 max-w-lg mx-auto">
-            Toggle between our integrated enterprise personas to preview the platform interface and operational rules in action.
-          </p>
-        </div>
-
-        {/* Tab Controls */}
-        <div className="flex justify-center gap-2 p-1.5 rounded-xl max-w-md mx-auto mb-8 bg-white border border-slate-200">
-          {[
-            { id: 'employee', label: 'Employee Hub', icon: Target },
-            { id: 'manager', label: 'Manager Desk', icon: Users },
-            { id: 'admin', label: 'Governance Console', icon: Shield }
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  isActive 
-                    ? 'bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-sm' 
-                    : 'text-slate-500 hover:text-slate-700 border border-transparent'
-                }`}
-              >
-                <Icon size={14} />
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Interactive Mock Container - Beautiful Premium Light Glass Card */}
-        <div className="rounded-2xl border p-6 md:p-8 shadow-2xl relative overflow-hidden bg-white/80 border-slate-200/80 backdrop-blur-md">
-          {activeTab === 'employee' && (
-            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
-                <div>
-                  <span className="text-[9px] uppercase tracking-wider font-bold text-indigo-600">Persona View: Arjun Engineer</span>
-                  <h3 className="text-base font-bold text-slate-800 mt-0.5">My Goalboard</h3>
-                </div>
-                <div className="flex gap-2">
-                  <span className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-full font-bold">100% Compliant</span>
-                  <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">FY 2026</span>
-                </div>
-              </div>
-
-              {/* Goals list */}
-              <div className="flex flex-col gap-3.5 mb-6">
-                {[
-                  { title: 'Optimize Trombay pipeline flow rate constraints', weight: 40, status: 'Approved' },
-                  { title: 'Deploy AI-driven leakage alert telemetry triggers', weight: 35, status: 'Approved' },
-                  { title: 'Reduce overall maintenance downtime by 12%', weight: 25, status: 'Draft' }
-                ].map((g, idx) => (
-                  <div key={idx} className="p-4 rounded-xl flex items-center justify-between border border-slate-100 hover:bg-slate-50 transition-colors bg-white">
-                    <div className="flex-1 min-w-0 pr-4">
-                      <h4 className="text-xs font-semibold text-slate-800 truncate">{g.title}</h4>
-                      <p className="text-[10px] text-slate-500 mt-1">Weightage: {g.weight}%</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-24 bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-indigo-600 h-full rounded-full" style={{ width: `${g.weight}%` }}></div>
-                      </div>
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${g.status === 'Approved' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
-                        {g.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex justify-between items-center text-[10px] text-slate-500 pt-3 border-t border-slate-100">
-                <span>🔒 Securely locked for review</span>
-                <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Q2 Check-in Met</span>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'manager' && (
-            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
-                <div>
-                  <span className="text-[9px] uppercase tracking-wider font-bold text-indigo-600">Persona View: Sarah Manager</span>
-                  <h3 className="text-base font-bold text-slate-800 mt-0.5">L1 Approval Panel</h3>
-                </div>
-                <span className="text-[10px] bg-indigo-50 text-indigo-600 border border-indigo-100 px-2 py-0.5 rounded-full font-bold">1 Pending Action</span>
-              </div>
-
-              {/* Pending list */}
-              <div className="p-4 rounded-xl border border-slate-100 mb-6 bg-white">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-800">Arjun Engineer (Trombay HQ)</h4>
-                    <p className="text-[10px] text-slate-500 mt-0.5">Submitted Q2 Quarterly check-in for review</p>
-                  </div>
-                  <span className="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded">Pending Approval</span>
-                </div>
-                <div className="p-3 rounded-lg bg-slate-50 border border-slate-100 mb-4">
-                  <p className="text-[10px] italic text-slate-600">"Trombay pumping simulation pipelines finalized. Checked flow rates; Q2 milestones achieved."</p>
-                </div>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => alert('Demo Action: Goal set approved successfully!')}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg cursor-pointer transition-colors"
-                  >
-                    Approve Progress
-                  </button>
-                  <button 
-                    onClick={() => alert('Demo Action: Revision requested!')}
-                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold px-3 py-1.5 rounded-lg cursor-pointer transition-colors"
-                  >
-                    Request Revision
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex justify-between items-center text-[10px] text-slate-500 pt-3 border-t border-slate-100">
-                <span>⚡ Global Manager Access enabled</span>
-                <span>Audit trail compiled for compliance</span>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'admin' && (
-            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
-                <div>
-                  <span className="text-[9px] uppercase tracking-wider font-bold text-amber-600">Persona View: Boss Admin</span>
-                  <h3 className="text-base font-bold text-slate-800 mt-0.5">Governance Command Center</h3>
-                </div>
-                <span className="text-[10px] bg-red-50 text-red-600 border border-red-100 px-2 py-0.5 rounded-full font-bold">Exception Pending</span>
-              </div>
-
-              {/* Exception alerts */}
-              <div className="p-4 rounded-xl border border-slate-100 mb-6 bg-white">
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex gap-2">
-                    <span className="p-1 rounded bg-amber-50 text-amber-600 border border-amber-100"><AlertTriangle size={14} /></span>
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-800">Stale Goal Weightage Exception</h4>
-                      <p className="text-[10px] text-slate-500 mt-0.5">Arjun Engineer's goal weightage totals 85% (Required: 100%)</p>
-                    </div>
-                  </div>
-                  <span className="text-[9px] bg-red-50 text-red-600 border border-red-100 px-1.5 py-0.5 rounded-full font-bold">Auto-Escalated</span>
-                </div>
-                <p className="text-[10px] text-slate-500 mb-4 leading-relaxed">
-                  System detected a non-compliant goal total. The state has been locked, and notification triggers have escalated to the department supervisor.
-                </p>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => alert('Demo Action: Dispatched urgent alert to Sarah Manager!')}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg cursor-pointer transition-colors"
-                  >
-                    Trigger Exception Alert
-                  </button>
-                  <button 
-                    onClick={() => alert('Demo Action: Audit logs compiled!')}
-                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold px-3 py-1.5 rounded-lg cursor-pointer transition-colors"
-                  >
-                    Export Compliance Audit Log
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex justify-between items-center text-[10px] text-slate-500 pt-3 border-t border-slate-100">
-                <span>🔒 Immutable transaction ledger active</span>
-                <span>ISO-27001 compliant state logs</span>
-              </div>
-            </div>
-          )}
         </div>
       </section>
 
