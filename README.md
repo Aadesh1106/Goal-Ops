@@ -2,7 +2,7 @@
 
 > **Optimizing Goal Alignment, Performance Intelligence, and HR Governance**
 > 
-> A secure, enterprise-grade Goal Governance & Performance Intelligence platform designed for Hindustan Petroleum Corporation Limited (HPCL) to solve the **AtomQuest Hackathon 1.0: In-House Goal Setting & Tracking Portal** challenge.
+> A secure, enterprise-grade Goal Governance & Performance Intelligence platform designed  to solve the **AtomQuest Hackathon 1.0: In-House Goal Setting & Tracking Portal** challenge.
 
 [![Next.js 15](https://img.shields.io/badge/Next.js-15+-000000?style=flat&logo=next.js)](https://nextjs.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=flat&logo=supabase)](https://supabase.com/)
